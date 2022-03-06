@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "mlops-app.fullname" . }}
+  name: {{ include "backend.fullname" . }}
   labels:
-    {{- include "mlops-app.labels" . | nindent 4 }}
+    {{- include "backend.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "mlops-app.selectorLabels" . | nindent 6 }}
+      {{- include "backend.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,13 +18,13 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "mlops-app.selectorLabels" . | nindent 8 }}
+        {{- include "backend.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "mlops-app.serviceAccountName" . }}
+      serviceAccountName: {{ include "backend.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -49,14 +49,35 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
             - name: MONGODB_ROOT_USERNAME
-              value: root
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "backend.fullname" . }}
+                  key: MONGODB_ROOT_USERNAME
             - name: MONGODB_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: evelyn-mongodb
+                  name: evelyn-mongo-mongodb
                   key: mongodb-root-password
             - name: MONGODB_ROOT_HOST
-              value: evelyn-mongodb
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "backend.fullname" . }}
+                  key: MONGODB_ROOT_HOST
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "backend.fullname" . }}
+                  key: REDIS_HOST
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: evelyn-redis
+                  key: redis-password
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "backend.fullname" . }}
+                  key: REDIS_PORT
 
       {{- with .Values.nodeSelector }}
       nodeSelector:

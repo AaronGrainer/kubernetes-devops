@@ -105,6 +105,9 @@ helm-uninstall:
 skaffold-run:
 	skaffold run -m evelyn-$(COMPONENT) -p $(ENV) --tail --port-forward
 
+skaffold-dev:
+	skaffold dev -m evelyn-$(COMPONENT) -p $(ENV) --tail --port-forward
+
 
 # Helm Prometheus
 helm-prometheus-repo-add:
@@ -130,13 +133,19 @@ argo-cli-install:
 	argo version
 
 
-# Support deployments
+# MongoDB
 helm-install-mongodb:
 	helm repo add bitnami https://charts.bitnami.com/bitnami
-	helm install evelyn bitnami/mongodb -n evelyn-$(ENV)
+	helm install evelyn-mongo bitnami/mongodb -n evelyn-$(ENV)
 
 mongodb-password:
-	kubectl get secret --namespace evelyn-$(ENV) evelyn-mongodb -o jsonpath="{.data.mongodb-root-password}" | base64 --decode
+	kubectl get secret --namespace evelyn-$(ENV) evelyn-mongo-mongodb -o jsonpath="{.data.mongodb-root-password}" | base64 --decode
 
 mongodb-port-forward:
-	kubectl port-forward --namespace evelyn-$(ENV) svc/evelyn-mongodb 27011:27017
+	kubectl port-forward --namespace evelyn-$(ENV) svc/evelyn-mongo-mongodb 27011:27017
+
+
+# Redis
+helm-install-redis:
+	helm repo add bitnami https://charts.bitnami.com/bitnami
+	helm install evelyn-redis bitnami/redis -n evelyn-$(ENV)

@@ -47,6 +47,7 @@ MONGO_CLIENT = (
 # Redis
 REDIS_HOST = os.getenv("REDIS_HOST")
 REDIS_PORT = os.getenv("REDIS_PORT")
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
 
 # MLFlow model registry
 mlflow.set_tracking_uri("file://" + str(MODEL_REGISTRY.absolute()))

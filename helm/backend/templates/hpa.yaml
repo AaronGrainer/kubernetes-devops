@@ -2,14 +2,14 @@
 apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "mlops-app.fullname" . }}
+  name: {{ include "backend.fullname" . }}
   labels:
-    {{- include "mlops-app.labels" . | nindent 4 }}
+    {{- include "backend.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "mlops-app.fullname" . }}
+    name: {{ include "backend.fullname" . }}
   minReplicas: {{ .Values.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.autoscaling.maxReplicas }}
   metrics:

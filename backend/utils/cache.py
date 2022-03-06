@@ -6,6 +6,7 @@ RE = redis.Redis(
     host=config.REDIS_HOST,
     port=config.REDIS_PORT,
     db=0,
+    password=config.REDIS_PASSWORD,
     charset="utf-8",
     decode_responses=True,
 )
