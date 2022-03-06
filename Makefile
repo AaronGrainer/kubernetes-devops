@@ -1,6 +1,8 @@
 ENV ?= dev
-COMPONENT ?= app
-PORT ?= 8051
+COMPONENT ?= frontend
+
+# frontend PORT=8501, backend PORT=8502
+PORT ?= 8501
 
 
 # Initialize project
@@ -52,8 +54,7 @@ docker-build:
 		-t evelyn-$(COMPONENT):latest
 
 docker-run:
-	# app PORT=8501, api PORT=8502
-	make docker-build-$(COMPONENT)
+	make docker-build $(COMPONENT)
 	docker run -p $(PORT):$(PORT) evelyn-$(COMPONENT):latest
 
 docker-push:
@@ -100,6 +101,14 @@ helm-uninstall:
 	helm uninstall evelyn-$(COMPONENT)-$(ENV) -n evelyn-$(ENV)
 
 
+# Skaffold
+skaffold-run:
+	skaffold run -m evelyn-$(COMPONENT) -p $(ENV) --tail --port-forward
+
+skaffold-dev:
+	skaffold dev -m evelyn-$(COMPONENT) -p $(ENV) --tail --port-forward
+
+
 # Helm Prometheus
 helm-prometheus-repo-add:
 	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
@@ -116,9 +125,27 @@ prometheus-port-forward:
 
 
 # Argo
-install-argo-cli:
+argo-cli-install:
 	curl -sLO https://github.com/argoproj/argo-workflows/releases/download/v3.2.9/argo-darwin-amd64.gz
 	gunzip argo-darwin-amd64.gz
 	chmod +x argo-darwin-amd64
 	mv ./argo-darwin-amd64 /usr/local/bin/argo
 	argo version
+
+
+# MongoDB
+helm-install-mongodb:
+	helm repo add bitnami https://charts.bitnami.com/bitnami
+	helm install evelyn-mongo bitnami/mongodb -n evelyn-$(ENV)
+
+mongodb-password:
+	kubectl get secret --namespace evelyn-$(ENV) evelyn-mongo-mongodb -o jsonpath="{.data.mongodb-root-password}" | base64 --decode
+
+mongodb-port-forward:
+	kubectl port-forward --namespace evelyn-$(ENV) svc/evelyn-mongo-mongodb 27011:27017
+
+
+# Redis
+helm-install-redis:
+	helm repo add bitnami https://charts.bitnami.com/bitnami
+	helm install evelyn-redis bitnami/redis -n evelyn-$(ENV)

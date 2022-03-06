@@ -1,0 +1,129 @@
+apiVersion: skaffold/v2beta26
+kind: Config
+metadata:
+  name: evelyn-frontend
+build:
+  artifacts:
+  - image: aarongrainer/evelyn-frontend
+    context: .
+    docker:
+      dockerfile: frontend/Dockerfile
+deploy:
+  helm:
+    releases:
+    - name: evelyn-frontend
+      chartPath: helm/frontend
+      valuesFiles:
+      - helm/frontend/values-dev.yaml
+      artifactOverrides:
+        image: aarongrainer/evelyn-frontend
+      namespace: evelyn-dev
+      imageStrategy:
+        helm: {}
+profiles:
+- name: dev
+  deploy:
+    helm:
+      releases:
+      - name: evelyn-frontend
+        chartPath: helm/frontend
+        valuesFiles:
+        - helm/frontend/values-dev.yaml
+        artifactOverrides:
+          image: aarongrainer/evelyn-frontend
+        namespace: evelyn-dev
+        imageStrategy:
+          helm: {}
+- name: staging
+  deploy:
+    helm:
+      releases:
+      - name: evelyn-frontend
+        chartPath: helm/frontend
+        valuesFiles:
+        - helm/frontend/values-staging.yaml
+        artifactOverrides:
+          image: aarongrainer/evelyn-frontend
+        namespace: evelyn-staging
+        imageStrategy:
+          helm: {}
+- name: prod
+  deploy:
+    helm:
+      releases:
+      - name: evelyn-frontend
+        chartPath: helm/frontend
+        valuesFiles:
+        - helm/frontend/values-prod.yaml
+        artifactOverrides:
+          image: aarongrainer/evelyn-frontend
+        namespace: evelyn-prod
+        imageStrategy:
+          helm: {}
+
+---
+
+apiVersion: skaffold/v2beta26
+kind: Config
+metadata:
+  name: evelyn-backend
+build:
+  artifacts:
+  - image: aarongrainer/evelyn-backend
+    context: .
+    docker:
+      dockerfile: backend/Dockerfile
+deploy:
+  helm:
+    releases:
+    - name: evelyn-backend
+      chartPath: helm/backend
+      valuesFiles:
+      - helm/backend/values-dev.yaml
+      artifactOverrides:
+        image: aarongrainer/evelyn-backend
+      namespace: evelyn-dev
+      imageStrategy:
+        helm: {}
+profiles:
+- name: dev
+  deploy:
+    helm:
+      releases:
+      - name: evelyn-backend
+        chartPath: helm/backend
+        valuesFiles:
+        - helm/backend/values-dev.yaml
+        artifactOverrides:
+          image: aarongrainer/evelyn-backend
+        namespace: evelyn-dev
+        imageStrategy:
+          helm: {}
+- name: staging
+  deploy:
+    helm:
+      releases:
+      - name: evelyn-backend
+        chartPath: helm/backend
+        valuesFiles:
+        - helm/backend/values-staging.yaml
+        artifactOverrides:
+          image: aarongrainer/evelyn-backend
+        namespace: evelyn-staging
+        imageStrategy:
+          helm: {}
+- name: prod
+  deploy:
+    helm:
+      releases:
+      - name: evelyn-backend
+        chartPath: helm/backend
+        valuesFiles:
+        - helm/backend/values-prod.yaml
+        artifactOverrides:
+          image: aarongrainer/evelyn-backend
+        namespace: evelyn-prod
+        imageStrategy:
+          helm: {}
+
+
