@@ -9,10 +9,10 @@ BASE_DIR = Path(__file__).parent
 
 # Load packages from requirements.txt
 required_packages = []
-with open(Path(BASE_DIR, "app", "requirements.txt")) as file:
+with open(Path(BASE_DIR, "frontend", "requirements.txt")) as file:
     required_packages.extend([ln.strip() for ln in file.readlines()])
 
-with open(Path(BASE_DIR, "api", "requirements.txt")) as file:
+with open(Path(BASE_DIR, "backend", "requirements.txt")) as file:
     required_packages.extend([ln.strip() for ln in file.readlines()])
 
 test_packages = [
