@@ -73,19 +73,6 @@ create-namespaces:
 	kubectl create namespace evelyn-staging
 	kubectl create namespace evelyn-prod
 
-kubectl-deploy:
-	kubectl delete -f kubernetes-manifest/$(COMPONENT).yaml
-	kubectl apply -f kubernetes-manifest/$(COMPONENT).yaml
-
-kubectl-rollout:
-	docker image build -f $(COMPONENT)/Dockerfile . \
-		-t evelyn-$(COMPONENT):latest
-
-	docker image tag evelyn-$(COMPONENT):latest aarongrainer/evelyn-$(COMPONENT):latest
-	docker push aarongrainer/evelyn-$(COMPONENT):latest
-
-	kubectl rollout restart deployment/evelyn-$(COMPONENT)
-
 
 # Helm
 helm-install:
@@ -149,3 +136,19 @@ mongodb-port-forward:
 helm-install-redis:
 	helm repo add bitnami https://charts.bitnami.com/bitnami
 	helm install evelyn-redis bitnami/redis -n evelyn-$(ENV)
+
+
+# ElasticSearch
+helm-install-elasticsearch:
+	helm repo add bitnami https://charts.bitnami.com/bitnami
+	helm install evelyn-elasticsearch bitnami/elasticsearch -n evelyn-$(ENV)
+
+elasticsearch-port-forward:
+	kubectl port-forward --namespace evelyn-dev svc/evelyn-elasticsearch-coordinating-only 9200:9200 & \
+    	curl http://127.0.0.1:9200/
+
+
+# Fluentd
+helm-install-fluentd:
+	helm repo add bitnami https://charts.bitnami.com/bitnami
+	helm install evelyn-fluentd bitnami/fluentd -n evelyn-$(ENV)

@@ -6,7 +6,8 @@ from pathlib import Path
 
 import mlflow
 import pretty_errors  # NOQA: F401
-from rich.logging import RichHandler
+from fluent import handler
+from rich.logging import RichHandler  # NOQA: F401
 
 # Settings
 TITLE = "Singapore Analytics"
@@ -96,4 +97,15 @@ logging_config = {
 }
 logging.config.dictConfig(logging_config)
 logger = logging.getLogger("root")
-logger.handlers[0] = RichHandler(markup=True)
+# logger.handlers[0] = RichHandler(markup=True)
+
+custom_format = {
+    "host": "%(hostname)s",
+    "where": "%(module)s.%(funcName)s",
+    "type": "%(levelname)s",
+    "stack_trace": "%(exc_text)s",
+}
+h = handler.FluentHandler("app.follow", host="evelyn-fluentd-aggregator", port=24224)
+formatter = handler.FluentRecordFormatter(custom_format)
+h.setFormatter(formatter)
+logger.addHandler(h)
