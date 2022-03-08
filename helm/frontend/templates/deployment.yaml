@@ -35,18 +35,29 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 8051
+              containerPort: 8501
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: BACKEND_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "frontend.fullname" . }}
+                  key: BACKEND_HOST
+            - name: BACKEND_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "frontend.fullname" . }}
+                  key: BACKEND_PORT
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

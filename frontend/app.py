@@ -15,10 +15,10 @@ def send_request(method: str, endpoint: str, payload: Dict = {}):
         payload (str): Request payload
     """
     url = f"{config.BACKEND_URL}/{endpoint}"
+    logger.info(f"Sending {method} request to {url} with {payload}")
     try:
         if method == "GET":
             response = requests.get(url, json=payload)
-            logger.info("response: ", response)
 
         if response.status_code < 200 or response.status_code >= 300:
             logger.error(
@@ -26,6 +26,11 @@ def send_request(method: str, endpoint: str, payload: Dict = {}):
                 f"Comment status_code: {response.status_code}, "
                 f"response text: {response.text}"
             )
+            return {}
+
+        response_json = response.json()
+        logger.info(f"Received response: {response_json}")
+        return response_json
     except Exception as e:
         logger.error(f"Error sending request to {url}. {e}")
 
@@ -34,7 +39,8 @@ def main():
     st.title(config.TITLE)
     st.write(config.DESCRIPTION)
 
-    send_request("GET", "")
+    response = send_request("GET", "")
+    st.write(response)
 
 
 if __name__ == "__main__":

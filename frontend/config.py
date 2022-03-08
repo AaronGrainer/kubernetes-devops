@@ -1,5 +1,6 @@
 import logging
 import logging.config
+import os
 import sys
 from pathlib import Path
 
@@ -10,7 +11,10 @@ from rich.logging import RichHandler  # NOQA: F401
 TITLE = "Singapore Analytics"
 DESCRIPTION = "Analytical app and data pipeline to understand Singapore a little better."
 VERSION = "1.0"
-BACKEND_URL = "http://127.0.0.1:8502"
+
+BACKEND_HOST = os.getenv("BACKEND_HOST")
+BACKEND_PORT = os.getenv("BACKEND_PORT")
+BACKEND_URL = f"http://{BACKEND_HOST}:{BACKEND_PORT}"
 
 # Directories
 BASE_DIR = Path(__file__).parent.parent.absolute()
