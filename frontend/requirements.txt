@@ -4,3 +4,4 @@ plotly==5.6.0
 pandas==1.4.1
 rich==11.2.0
 pretty-errors==1.2.25
+streamlit-folium==0.6.2
