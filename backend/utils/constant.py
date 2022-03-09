@@ -1,2 +1,2 @@
 DATABASE = "evelyn"
-LOCATION = "location"
+LANDMARK = "landmark"

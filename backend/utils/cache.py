@@ -20,7 +20,7 @@ def get_cache(attr: str):
     """
     try:
         value = RE.get(attr)
-        logger.info(f"Retrieve cache {attr}: {value}")
+        logger.debug(f"Retrieve cache {attr}: {value}")
     except Exception as e:
         value = None
         logger.error(f"Error retrieve cache {attr}. {e}")
@@ -37,7 +37,7 @@ def set_cache(attr: str, value: str):
     """
     try:
         RE.set(attr, value)
-        logger.info(f"Set cache {attr}: {value}")
+        logger.debug(f"Set cache {attr}: {value}")
     except Exception as e:
         logger.error(f"Error setting cache {attr}: {value}. {e}")
 
@@ -50,6 +50,6 @@ def del_cache(attr: str):
     """
     try:
         RE.delete(attr)
-        logger.info(f"Delete cache {attr}")
+        logger.debug(f"Delete cache {attr}")
     except Exception as e:
         logger.error(f"Error deleting cache {attr}. {e}")
