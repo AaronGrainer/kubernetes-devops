@@ -1,1 +1,1 @@
-from .location import Location  # NOQA: F401
+from .landmark import Landmark  # NOQA: F401

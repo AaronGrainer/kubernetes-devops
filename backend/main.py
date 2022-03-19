@@ -1,5 +1,5 @@
 import config
-from api import location
+from api import landmark
 from fastapi import Depends, FastAPI, Header, HTTPException
 from starlette.middleware.cors import CORSMiddleware
 
@@ -30,4 +30,4 @@ def root():
     return {"data": "Singapore Analytics"}
 
 
-app.include_router(location.router, prefix="/locations", dependencies=[Depends(get_token_header)])
+app.include_router(landmark.router, prefix="/landmarks", dependencies=[Depends(get_token_header)])

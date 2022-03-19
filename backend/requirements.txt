@@ -5,3 +5,4 @@ mlflow==1.24.0
 pretty-errors==1.2.25
 pymongo==4.0.2
 redis==4.1.4
+fluent-logger==0.10.0

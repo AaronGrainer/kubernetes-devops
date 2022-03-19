@@ -73,19 +73,6 @@ create-namespaces:
 	kubectl create namespace evelyn-staging
 	kubectl create namespace evelyn-prod
 
-kubectl-deploy:
-	kubectl delete -f kubernetes-manifest/$(COMPONENT).yaml
-	kubectl apply -f kubernetes-manifest/$(COMPONENT).yaml
-
-kubectl-rollout:
-	docker image build -f $(COMPONENT)/Dockerfile . \
-		-t evelyn-$(COMPONENT):latest
-
-	docker image tag evelyn-$(COMPONENT):latest aarongrainer/evelyn-$(COMPONENT):latest
-	docker push aarongrainer/evelyn-$(COMPONENT):latest
-
-	kubectl rollout restart deployment/evelyn-$(COMPONENT)
-
 
 # Helm
 helm-install:
@@ -132,6 +119,27 @@ argo-cli-install:
 	mv ./argo-darwin-amd64 /usr/local/bin/argo
 	argo version
 
+argo-deployment:
+	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-manifest/argo-workflow.yaml
+
+	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-manifest/argo-events.yaml
+	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-manifest/event-bus.yaml
+	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-manifest/event-source.yaml
+
+	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-manifest/sensor-service-account.yaml
+
+	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-manifest/webhook-sensor.yaml
+
+argo-workflow-port-forward:
+	kubectl -n evelyn-$(ENV) port-forward deployment/argo-server 2746:2746
+
+argo-events-port-foward:
+	$(eval ARGO_WEBHOOK_POD_NAME := $(shell kubectl -n evelyn-$(ENV) get pod -l eventsource-name=webhook -o name))
+	kubectl -n evelyn-$(ENV) port-forward $(ARGO_WEBHOOK_POD_NAME) 12000:12000
+
+curl-argo-events:
+	curl -d '{"message":"Hello there"}' -H "Content-Type: application/json" -X POST http://localhost:12000/deploy
+
 
 # MongoDB
 helm-install-mongodb:
@@ -149,3 +157,19 @@ mongodb-port-forward:
 helm-install-redis:
 	helm repo add bitnami https://charts.bitnami.com/bitnami
 	helm install evelyn-redis bitnami/redis -n evelyn-$(ENV)
+
+
+# ElasticSearch
+helm-install-elasticsearch:
+	helm repo add bitnami https://charts.bitnami.com/bitnami
+	helm install evelyn-elasticsearch bitnami/elasticsearch -n evelyn-$(ENV)
+
+elasticsearch-port-forward:
+	kubectl port-forward --namespace evelyn-dev svc/evelyn-elasticsearch-coordinating-only 9200:9200 & \
+    	curl http://127.0.0.1:9200/
+
+
+# Fluentd
+helm-install-fluentd:
+	helm repo add bitnami https://charts.bitnami.com/bitnami
+	helm install evelyn-fluentd bitnami/fluentd -n evelyn-$(ENV)

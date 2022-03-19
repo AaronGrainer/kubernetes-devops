@@ -14,6 +14,8 @@ def construct_response(f):
         # Construct response
         response = {
             "method": request.method,
+            "message": results["status_code"].phrase,
+            "status_code": results["status_code"],
             "timestamp": datetime.now().isoformat(),
             "url": request.url._url,
         }
@@ -25,3 +27,11 @@ def construct_response(f):
         return response
 
     return wrap
+
+
+def filter_document(document):
+    document.pop("_id", None)
+    document.pop("created_at", None)
+    document.pop("updated_at", None)
+
+    return document
