@@ -16,7 +16,7 @@ spec:
           group: argoproj.io
           version: v1alpha1
           resource: workflows
-          operation: create
+          operation: submit
           source:
             resource:
               apiVersion: argoproj.io/v1alpha1
@@ -32,6 +32,9 @@ spec:
                     value: hello world
                 templates:
                 - name: whalesay
+                  # templateRef:
+                  #   name: whalesay
+                  #   template: my-workflow-template
                   inputs:
                     parameters:
                     - name: message

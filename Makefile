@@ -119,7 +119,7 @@ argo-cli-install:
 	mv ./argo-darwin-amd64 /usr/local/bin/argo
 	argo version
 
-argo-deployment:
+argo-deploy-components:
 	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/argo-workflow.yaml
 
 	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/argo-events.yaml
@@ -128,10 +128,20 @@ argo-deployment:
 
 	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/sensor-service-account.yaml
 
-	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-manifest/webhook-sensor.yaml
-
 argo-workflow-port-forward:
 	kubectl -n evelyn-$(ENV) port-forward deployment/argo-server 2746:2746
+
+argo-workflow-template-deploy:
+	argo template -n evelyn-$(ENV) lint pipeline/argo-manifest/workflow-template.yaml
+	- argo template -n evelyn-$(ENV) delete my-workflow-template
+	argo template -n evelyn-$(ENV) create pipeline/argo-manifest/workflow-template.yaml
+
+argo-workflow-submit:
+	argo submit -n evelyn-$(ENV) --from workflowtemplate/my-workflow-template
+
+argo-events-deploy:
+	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-manifest/webhook-sensor.yaml
+	make argo-events-port-foward
 
 argo-events-port-foward:
 	$(eval ARGO_WEBHOOK_POD_NAME := $(shell kubectl -n evelyn-$(ENV) get pod -l eventsource-name=webhook -o name))
