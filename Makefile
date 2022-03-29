@@ -120,13 +120,13 @@ argo-cli-install:
 	argo version
 
 argo-deployment:
-	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-manifest/argo-workflow.yaml
+	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/argo-workflow.yaml
 
-	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-manifest/argo-events.yaml
-	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-manifest/event-bus.yaml
-	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-manifest/event-source.yaml
+	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/argo-events.yaml
+	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/event-bus.yaml
+	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/event-source.yaml
 
-	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-manifest/sensor-service-account.yaml
+	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/sensor-service-account.yaml
 
 	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-manifest/webhook-sensor.yaml
 
