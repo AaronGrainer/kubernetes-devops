@@ -140,6 +140,7 @@ argo-workflow-submit:
 	argo submit -n evelyn-$(ENV) --from workflowtemplate/my-workflow-template
 
 argo-events-deploy:
+	kubectl -n evelyn-$(ENV) delete -f pipeline/argo-manifest/webhook-sensor.yaml
 	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-manifest/webhook-sensor.yaml
 	make argo-events-port-foward
 

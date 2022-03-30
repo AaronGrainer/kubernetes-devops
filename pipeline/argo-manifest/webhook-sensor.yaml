@@ -16,7 +16,7 @@ spec:
           group: argoproj.io
           version: v1alpha1
           resource: workflows
-          operation: submit
+          operation: create
           source:
             resource:
               apiVersion: argoproj.io/v1alpha1
@@ -24,24 +24,44 @@ spec:
               metadata:
                 generateName: webhook-
               spec:
-                entrypoint: whalesay
+                entrypoint: hello
                 arguments:
                   parameters:
                   - name: message
                     # The value will get overridden by event payload from test-dep
                     value: hello world
                 templates:
-                - name: whalesay
-                  # templateRef:
-                  #   name: whalesay
-                  #   template: my-workflow-template
-                  inputs:
-                    parameters:
-                    - name: message
-                  container:
-                    image: docker/whalesay:latest
-                    command: [cowsay]
-                    args: ["{{inputs.parameters.message}}"]
+                  - name: hello
+                    steps:
+                    - - name: hello-01
+                        template: whalesay
+                        arguments:
+                          parameters: [{name: message, value: "{{workflow.parameters.message}}"}]
+
+                      - name: hello-02
+                        template: whalesay
+                        arguments:
+                          parameters: [{name: message, value: "{{workflow.parameters.message}}"}]
+
+                    - - name: hello-11
+                        template: whalesay
+                        arguments:
+                          parameters: [{name: message, value: "{{workflow.parameters.message}}"}]
+
+                      - name: hello-12
+                        template: whalesay
+                        arguments:
+                          parameters: [{name: message, value: "{{workflow.parameters.message}}"}]
+
+                  - name: whalesay
+                    inputs:
+                      parameters:
+                      - name: message
+                        value: hello world
+                    container:
+                      image: docker/whalesay:latest
+                      command: [cowsay]
+                      args: ["{{inputs.parameters.message}}"]
           parameters:
             - src:
                 dependencyName: test-dep
