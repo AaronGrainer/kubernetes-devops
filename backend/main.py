@@ -27,7 +27,7 @@ async def get_token_header(x_token: str = Header(...)):
 
 @app.get("/")
 def root():
-    return {"data": "Singapore Analytics"}
+    return {"data": "Geo Analytics"}
 
 
 app.include_router(landmark.router, prefix="/landmarks", dependencies=[Depends(get_token_header)])

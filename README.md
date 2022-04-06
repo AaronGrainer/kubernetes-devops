@@ -1,2 +1,2 @@
-# singapore-analytics
-Analytical app and data pipeline to understand Singapore a little better
+# geo-analytics
+Analytical app and data pipeline to understand Geolocation a little better

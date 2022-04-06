@@ -30,11 +30,11 @@ dev_packages = [
 setup(
     name="Evelyn",
     version="1.0.0",
-    description="Analytical app and data pipeline to understand Singapore a little better",
+    description="Analytical app and data pipeline to understand Geolocation a little better",
     author="Aaron Grainer",
     author_email="aaronlimfz@gmail.com",
-    url="https://github.com/AaronGrainer/singapore-analytics",
-    keywords=["singapore", "data analytics"],
+    url="https://github.com/AaronGrainer/geo-analytics",
+    keywords=["geolocation", "data analytics"],
     classifiers=[
         "Topic :: Data Analytics",
     ],

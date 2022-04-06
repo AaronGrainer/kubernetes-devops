@@ -1,6 +1,6 @@
 apiVersion: v2
 name: evelyn-frontend
-description: Analytical app and data pipeline to understand Singapore a little better
+description: Analytical app and data pipeline to understand Geolocation a little better
 
 # A chart can be either an 'application' or a 'library' chart.
 #

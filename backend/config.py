@@ -10,8 +10,8 @@ from fluent import handler
 from rich.logging import RichHandler  # NOQA: F401
 
 # Settings
-TITLE = "Singapore Analytics"
-DESCRIPTION = "Analytical app and data pipeline to understand Singapore a little better."
+TITLE = "Geo Analytics"
+DESCRIPTION = "Analytical app and data pipeline to understand Geolocation a little better."
 VERSION = "1.0"
 BACKEND_CORS_ORIGINS = []
 

@@ -126,7 +126,7 @@ argo-deploy-components:
 	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/event-bus.yaml
 	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/event-source.yaml
 
-	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/sensor-service-account.yaml
+	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/workflow-service-account.yaml
 
 argo-workflow-port-forward:
 	kubectl -n evelyn-$(ENV) port-forward deployment/argo-server 2746:2746

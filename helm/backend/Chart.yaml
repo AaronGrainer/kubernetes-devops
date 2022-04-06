@@ -1,6 +1,6 @@
 apiVersion: v2
 name: evelyn-backend
-description: Singapore analytical backend endpoint
+description: Geolocation analytical backend endpoint
 
 # A chart can be either an 'application' or a 'library' chart.
 #
