@@ -1,8 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+kind: Workflow
 metadata:
-  name: my-workflow-template
-  namespace: evelyn-dev
+  generateName: my-workflow-template
 spec:
   entrypoint: hello
   templates:
@@ -28,6 +27,9 @@ spec:
           arguments:
             parameters: [{name: message, value: "hello1"}]
 
+      - - name: test-mlflow
+          template: test-mlflow
+
     - name: whalesay
       inputs:
         parameters:
@@ -37,3 +39,9 @@ spec:
         image: docker/whalesay:latest
         command: [cowsay]
         args: ["{{inputs.parameters.message}}"]
+
+    - name: test-mlflow
+      container:
+        image: aarongrainer/evelyn-pipeline-dev:v1
+        imagePullPolicy: Always
+        command: [python, -m, cli, test-mlflow]

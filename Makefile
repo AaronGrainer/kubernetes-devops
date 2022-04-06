@@ -4,6 +4,9 @@ COMPONENT ?= frontend
 # frontend PORT=8501, backend PORT=8502
 PORT ?= 8501
 
+GCR_REPO ?= aarongrainer
+MLFLOW_GS_ARTIFACT_PATH ?= gs://mlflow-tracking-storage/artifacts
+
 
 # Initialize project
 .PHONY: install
@@ -59,8 +62,12 @@ docker-run:
 
 docker-push:
 	docker login
-	docker image tag evelyn-$(COMPONENT):latest aarongrainer/evelyn-$(COMPONENT):latest
-	docker push aarongrainer/evelyn-$(COMPONENT):latest
+	docker image tag evelyn-$(COMPONENT):latest $(GCR_REPO)/evelyn-$(COMPONENT):latest
+	docker push $(GCR_REPO)/evelyn-$(COMPONENT):latest
+
+docker-build-push-pipeline:
+	docker build --tag $(GCR_REPO)/evelyn-pipeline-$(COMPONENT):v1 -f pipeline/Dockerfile . \
+		&& docker push $(GCR_REPO)/evelyn-pipeline-$(COMPONENT):v1
 
 
 # Kubernetes
@@ -96,6 +103,54 @@ skaffold-dev:
 	skaffold dev -m evelyn-$(COMPONENT) -p $(ENV) --tail --port-forward
 
 
+# MLFlow
+mlflow-install:
+	make mlflow-object-credentials-add
+	make mlflow-postgres-install
+	make mlflow-docker-build
+	make mlflow-helm-deploy
+
+mlflow-object-credentials-add:
+	- kubectl -n evelyn-$(ENV) delete secret gcsfs-creds
+	kubectl -n evelyn-$(ENV) create secret generic gcsfs-creds --from-file=secrets/keyfile.json
+
+mlflow-postgres-install:
+	helm repo add bitnami https://charts.bitnami.com/bitnami
+
+	- helm delete mlf-db -n evelyn-$(ENV)
+	- kubectl -n evelyn-$(ENV) delete pvc data-mlf-db-postgresql-0
+
+	helm install mlf-db bitnami/postgresql \
+		-f mlflow/postgresql-values.yaml \
+		-n evelyn-$(ENV)
+
+mlflow-docker-build:
+	docker build --tag ${GCR_REPO}/mlflow-tracking-server:v1 -f mlflow/Dockerfile .
+	docker push ${GCR_REPO}/mlflow-tracking-server:v1
+
+mlflow-helm-deploy:
+	helm repo add mlflow-tracking https://artefactory.github.io/mlflow-tracking-server/
+
+	- helm delete mlflow-tracking-server -n evelyn-$(ENV)
+
+	helm install mlflow-tracking-server mlflow-tracking/mlflow-tracking-server \
+		--set env.mlflowArtifactPath=${MLFLOW_GS_ARTIFACT_PATH} \
+		--set env.mlflowDBAddr=mlf-db-postgresql \
+		--set env.mlflowDBName=mlflow_db \
+		--set env.mlflowUser=postgres \
+		--set env.mlflowPass=mlflow \
+		--set env.mlflowDBPort=5432 \
+		--set image.repository=${GCR_REPO}/mlflow-tracking-server \
+		--set image.tag=v1 \
+		-n evelyn-$(ENV) \
+		# --set service.type=LoadBalancer
+
+mlflow-port-forward:
+	# kubectl get -n evelyn-$(ENV) svc -w mlflow-tracking-server
+	$(eval MLFLOW_POD_NAME := $(shell kubectl get pods -n evelyn-$(ENV) -l "app.kubernetes.io/name=mlflow-tracking-server,app.kubernetes.io/instance=mlflow-tracking-server" -o jsonpath="{.items[0].metadata.name}"))
+	kubectl -n evelyn-$(ENV) port-forward $(MLFLOW_POD_NAME) 8080:80
+
+
 # Helm Prometheus
 helm-prometheus-repo-add:
 	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
@@ -122,11 +177,11 @@ argo-cli-install:
 argo-deploy-components:
 	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/argo-workflow.yaml
 
-	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/argo-events.yaml
-	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/event-bus.yaml
-	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/event-source.yaml
+	# kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/argo-events.yaml
+	# kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/event-bus.yaml
+	# kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/event-source.yaml
 
-	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/workflow-service-account.yaml
+	# kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/workflow-service-account.yaml
 
 argo-workflow-port-forward:
 	kubectl -n evelyn-$(ENV) port-forward deployment/argo-server 2746:2746

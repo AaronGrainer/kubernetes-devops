@@ -4,9 +4,10 @@ import os
 import sys
 from pathlib import Path
 
-import mlflow
 import pretty_errors  # NOQA: F401
 from rich.logging import RichHandler  # NOQA: F401
+
+import mlflow
 
 # Directories
 BASE_DIR = Path(__file__).parent.parent.absolute()
@@ -39,7 +40,7 @@ MONGO_CLIENT = (
 )
 
 # MLFlow model registry
-mlflow.set_tracking_uri("file://" + str(MODEL_REGISTRY.absolute()))
+mlflow.set_tracking_uri("http://mlflow-tracking-server")
 
 # Logger
 logging_config = {

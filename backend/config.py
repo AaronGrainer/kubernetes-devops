@@ -4,10 +4,11 @@ import os
 import sys
 from pathlib import Path
 
-import mlflow
 import pretty_errors  # NOQA: F401
 from fluent import handler
 from rich.logging import RichHandler  # NOQA: F401
+
+import mlflow
 
 # Settings
 TITLE = "Geo Analytics"
@@ -51,7 +52,7 @@ REDIS_PORT = os.getenv("REDIS_PORT")
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
 
 # MLFlow model registry
-mlflow.set_tracking_uri("file://" + str(MODEL_REGISTRY.absolute()))
+mlflow.set_tracking_uri("http://mlflow-tracking-server")
 
 # Logger
 logging_config = {

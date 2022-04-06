@@ -10,5 +10,3 @@ RUN pip install -r requirements.txt
 # Copy
 COPY pipeline .
 
-# Start app
-ENTRYPOINT ["python", "-m", "extract_data"]
