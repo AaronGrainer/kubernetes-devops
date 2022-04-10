@@ -29,7 +29,7 @@ run-pre-commit:
 .PHONY: style
 style:
 	black .
-	flake8
+	# flake8
 	isort .
 
 
