@@ -130,4 +130,5 @@ dmypy.json
 
 # Extra files
 secrets/*.json
-data/*.csv
+# data/
+.vscode/

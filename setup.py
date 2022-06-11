@@ -15,6 +15,9 @@ with open(Path(BASE_DIR, "frontend", "requirements.txt")) as file:
 with open(Path(BASE_DIR, "backend", "requirements.txt")) as file:
     required_packages.extend([ln.strip() for ln in file.readlines()])
 
+with open(Path(BASE_DIR, "pipeline", "requirements.txt")) as file:
+    required_packages.extend([ln.strip() for ln in file.readlines()])
+
 test_packages = [
     "pytest==7.0.1",
     "pytest-cov==3.0.0",
@@ -30,13 +33,15 @@ dev_packages = [
 setup(
     name="Evelyn",
     version="1.0.0",
-    description="Analytical app and data pipeline to understand Geolocation a little better",
+    description="Recommendation engine and pipeline in Kubernetes with Devops principles and implementation",
     author="Aaron Grainer",
     author_email="aaronlimfz@gmail.com",
-    url="https://github.com/AaronGrainer/geo-analytics",
-    keywords=["geolocation", "data analytics"],
+    url="https://github.com/AaronGrainer/recommender-devops",
+    keywords=["recommender", "data analytics", "kubernetes"],
     classifiers=[
+        "Topic :: Recommender",
         "Topic :: Data Analytics",
+        "Topic :: Kubernetes"
     ],
     # python_requires="==3.8.12",
     packages=find_namespace_packages(),

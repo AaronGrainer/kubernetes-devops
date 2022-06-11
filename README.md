@@ -1,2 +1,2 @@
-# geo-analytics
-Analytical app and data pipeline to understand Geolocation a little better
+# recommender-devops
+Recommendation engine and pipeline in Kubernetes with Devops principles and implementation

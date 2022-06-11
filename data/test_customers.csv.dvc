@@ -1,0 +1,4 @@
+outs:
+- md5: 0973d7f5e8e9e34d2bc83ee11c070e5c
+  size: 578908
+  path: test_customers.csv

@@ -1,0 +1,4 @@
+outs:
+- md5: e17de5597d1e113c44e47b21acf5d348
+  size: 46826
+  path: vendors.csv
