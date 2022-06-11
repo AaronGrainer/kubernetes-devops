@@ -38,11 +38,7 @@ setup(
     author_email="aaronlimfz@gmail.com",
     url="https://github.com/AaronGrainer/recommender-devops",
     keywords=["recommender", "data analytics", "kubernetes"],
-    classifiers=[
-        "Topic :: Recommender",
-        "Topic :: Data Analytics",
-        "Topic :: Kubernetes"
-    ],
+    classifiers=["Topic :: Recommender", "Topic :: Data Analytics", "Topic :: Kubernetes"],
     # python_requires="==3.8.12",
     packages=find_namespace_packages(),
     install_requires=[required_packages],

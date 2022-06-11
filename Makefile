@@ -29,8 +29,8 @@ run-pre-commit:
 .PHONY: style
 style:
 	black .
-	# flake8
 	isort .
+	flake8
 
 
 # Cleaning
@@ -43,12 +43,26 @@ clean: style
 	rm -f .coverage
 
 
+# DVC
+.PHONY: dvc
+dvc:
+	dvc add data/restaurant/orders.csv
+	dvc add data/restaurant/SampleSubmission.csv
+	dvc add data/restaurant/test_customers.csv
+	dvc add data/restaurant/test_full.csv
+	dvc add data/restaurant/test_locations.csv
+	dvc add data/restaurant/train_customers.csv
+	dvc add data/restaurant/train_full.csv
+	dvc add data/restaurant/train_locations.csv
+	dvc add data/restaurant/VariableDefinitions.txt
+	dvc add data/restaurant/vendors.csv
+	dvc push
+
+
 # Test
 .PHONY: test
 test:
-	great_expectations checkpoint run projects
-	great_expectations checkpoint run tags
-	pytest -m "not training"
+	pytest
 
 
 # Local Docker
