@@ -4,6 +4,7 @@ import pandas as pd
 import torch
 import typer
 
+from recommender.datasets.dataset import ML1MDataset
 from recommender.model.model import Bert4RecModel
 
 app = typer.Typer()
@@ -42,7 +43,9 @@ def train():
     batch = [torch.zeros(128, 100, dtype=torch.int64), torch.zeros(128, 100, dtype=torch.int64)]
     seqs, labels = batch
     output = model(seqs)
-    print("output: ", output)
+
+    ml1m_dataset = ML1MDataset()
+    dataset = ml1m_dataset.load_dataset()
 
 
 if __name__ == "__main__":
