@@ -211,9 +211,9 @@ argo-workflow-submit:
 argo-events-deploy:
 	kubectl -n evelyn-$(ENV) delete -f pipeline/argo-manifest/webhook-sensor.yaml
 	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-manifest/webhook-sensor.yaml
-	make argo-events-port-foward
+	make argo-events-port-forward
 
-argo-events-port-foward:
+argo-events-port-forward:
 	$(eval ARGO_WEBHOOK_POD_NAME := $(shell kubectl -n evelyn-$(ENV) get pod -l eventsource-name=webhook -o name))
 	kubectl -n evelyn-$(ENV) port-forward $(ARGO_WEBHOOK_POD_NAME) 12000:12000
 

@@ -1,7 +1,10 @@
 from pathlib import Path
 
 import pandas as pd
+import torch
 import typer
+
+from recommender.model.model import Bert4RecModel
 
 app = typer.Typer()
 
@@ -16,7 +19,7 @@ VENDORS_FILEPATH = Path(BASE_DIR, "data", "vendors.csv")
 
 
 @app.command()
-def main():
+def restaurent_eda():
     orders_pd = pd.read_csv(ORDERS_FILEPATH)
     print("orders_pd: ", orders_pd.head())
 
@@ -31,6 +34,15 @@ def main():
 
     vendors_pd = pd.read_csv(VENDORS_FILEPATH)
     print("vendors_pd: ", vendors_pd.head())
+
+
+@app.command()
+def train():
+    model = Bert4RecModel()
+    batch = [torch.zeros(128, 100, dtype=torch.int64), torch.zeros(128, 100, dtype=torch.int64)]
+    seqs, labels = batch
+    output = model(seqs)
+    print("output: ", output)
 
 
 if __name__ == "__main__":

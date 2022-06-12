@@ -3,7 +3,7 @@ import logging.config
 import sys
 from pathlib import Path
 
-import pretty_errors  # NOQA: F401
+# import pretty_errors  # NOQA: F401
 from rich.logging import RichHandler
 
 # Directories
@@ -25,7 +25,7 @@ BERT_MAX_LEN = 100
 BERT_DROPOUT = 0.1
 BERT_NUM_HEADS = 4
 BERT_NUM_BLOCKS = 2
-NUM_ITEMS = None
+NUM_ITEMS = 0
 
 # Logger
 logging_config = {

@@ -1,10 +1,9 @@
-import torch
 import torch.nn as nn
-from model.embedding import BERTEmbedding
-from model.transformer import TransformerBlock
-from utils import set_seed
 
 from common import config
+from recommender.model.embedding import BERTEmbedding
+from recommender.model.transformer import TransformerBlock
+from recommender.utils import set_seed
 
 
 class Bert4RecModel(nn.Module):
@@ -31,7 +30,7 @@ class Bert4RecModel(nn.Module):
                     config.BERT_HIDDEN_UNITS * 4,
                     config.BERT_DROPOUT,
                 )
-                for _ in range(self.BERT_NUM_BLOCKS)
+                for _ in range(config.BERT_NUM_BLOCKS)
             ]
         )
 

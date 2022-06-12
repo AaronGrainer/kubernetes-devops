@@ -1,5 +1,4 @@
 import math
-from ast import Sub
 
 import torch
 import torch.nn as nn
@@ -7,15 +6,15 @@ import torch.nn.functional as F
 
 
 class Attention(nn.Module):
-    def __init__(self, query, key, value, mask=None, dropout=None):
+    def forward(self, query, key, value, mask=None, dropout=None):
         scores = torch.matmul(query, key.transpose(-2, -1)) / math.sqrt(query.size(-1))
 
-        if mask:
+        if mask is not None:
             scores = scores.masked_fill(mask == 0, -1e9)
 
         p_attn = F.softmax(scores, dim=-1)
 
-        if dropout:
+        if dropout is not None:
             p_attn = dropout(p_attn)
 
         return torch.matmul(p_attn, value), p_attn
@@ -66,7 +65,7 @@ class PositionwiseFeedForward(nn.Module):
         self.dropout = nn.Dropout(dropout)
         self.activation = GELU()
 
-    def foward(self, x):
+    def forward(self, x):
         return self.w_2(self.dropout(self.activation(self.w_1(x))))
 
 
