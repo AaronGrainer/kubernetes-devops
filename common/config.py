@@ -10,13 +10,15 @@ from rich.logging import RichHandler
 BASE_DIR = Path(__file__).parent.parent.absolute()
 LOGS_DIR = Path(BASE_DIR, "logs")
 MODEL_DIR = Path(BASE_DIR, "model")
+DATA_DIR = Path(BASE_DIR, "data")
 
 # Data
-MOVIE_DATASET_DIR = Path(BASE_DIR, "data", "movie")
+MOVIE_DATASET_DIR = Path(DATA_DIR, "movie")
 
 # Create Dirs
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
+DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 # Recommender
 RANDOM_SEED = 42
@@ -26,6 +28,11 @@ BERT_DROPOUT = 0.1
 BERT_NUM_HEADS = 4
 BERT_NUM_BLOCKS = 2
 NUM_ITEMS = 0
+LEARNING_RATE = 0.001
+WEIGHT_DECAY = 0
+MIN_RATING = 0
+MIN_SC = 0
+MIN_UC = 5
 
 # Logger
 logging_config = {
