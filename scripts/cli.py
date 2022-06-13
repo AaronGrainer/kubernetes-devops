@@ -4,6 +4,7 @@ import pandas as pd
 import torch
 import typer
 
+from recommender.datasets.dataloader import BertDataloader
 from recommender.datasets.dataset import ML1MDataset
 from recommender.model.model import Bert4RecModel
 
@@ -46,6 +47,8 @@ def train():
 
     ml1m_dataset = ML1MDataset()
     dataset = ml1m_dataset.load_dataset()
+
+    data_loader = BertDataloader(ml1m_dataset)
 
 
 if __name__ == "__main__":
