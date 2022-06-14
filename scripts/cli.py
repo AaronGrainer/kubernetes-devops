@@ -1,11 +1,17 @@
+import random
 from pathlib import Path
 
 import pandas as pd
 import torch
 import typer
 
-from recommender.datasets.dataloader import BertDataloader
-from recommender.datasets.dataset import ML1MDataset
+from common import config
+from recommender.datasets.data import ML1MDataset
+from recommender.datasets.dataloader import (
+    BertDataloader,
+    BertEvalDataset,
+    BertTrainDataset,
+)
 from recommender.model.model import Bert4RecModel
 
 app = typer.Typer()
@@ -49,6 +55,24 @@ def train():
     dataset = ml1m_dataset.load_dataset()
 
     data_loader = BertDataloader(ml1m_dataset)
+
+    smap = dataset["smap"]
+    item_count = len(smap)
+    CLOZE_MASK_TOKEN = item_count + 1
+    rng = random.Random(config.DATALOADER_RANDOM_SEED)
+    bert_train_dataset = BertTrainDataset(
+        dataset["train"],
+        config.BERT_MAX_LEN,
+        config.BERT_MASK_PROB,
+        CLOZE_MASK_TOKEN,
+        item_count,
+        rng,
+    )
+    train_bert_dataloader = torch.utils.data.DataLoader(bert_train_dataset, batch_size=2)
+    for x, y in train_bert_dataloader:
+        print("x: ", x)
+        print("y: ", y)
+        break
 
 
 if __name__ == "__main__":
