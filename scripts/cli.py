@@ -7,11 +7,7 @@ import typer
 
 from common import config
 from recommender.datasets.data import ML1MDataset
-from recommender.datasets.dataloader import (
-    BertDataloader,
-    BertEvalDataset,
-    BertTrainDataset,
-)
+from recommender.datasets.dataloader import BertDataModule, BertTrainDataset
 from recommender.model.model import Bert4RecModel
 
 app = typer.Typer()
@@ -50,11 +46,10 @@ def train():
     batch = [torch.zeros(128, 100, dtype=torch.int64), torch.zeros(128, 100, dtype=torch.int64)]
     seqs, labels = batch
     output = model(seqs)
+    print("output: ", output)
 
     ml1m_dataset = ML1MDataset()
     dataset = ml1m_dataset.load_dataset()
-
-    data_loader = BertDataloader(ml1m_dataset)
 
     smap = dataset["smap"]
     item_count = len(smap)
@@ -70,6 +65,30 @@ def train():
     )
     train_bert_dataloader = torch.utils.data.DataLoader(bert_train_dataset, batch_size=2)
     for x, y in train_bert_dataloader:
+        print("x: ", x)
+        print("y: ", y)
+        break
+
+    bert_data_module = BertDataModule()
+    print("bert_data_module: ", bert_data_module)
+    train_dataloader = bert_data_module.train_dataloader()
+    val_dataloader = bert_data_module.val_dataloader()
+    test_dataloader = bert_data_module.test_dataloader()
+
+    print("Train Dataloader")
+    for x, y in train_dataloader:
+        print("x: ", x)
+        print("y: ", y)
+        break
+
+    print("Val Dataloader")
+    for x, y in val_dataloader:
+        print("x: ", x)
+        print("y: ", y)
+        break
+
+    print("Test Dataloader")
+    for x, y in test_dataloader:
         print("x: ", x)
         print("y: ", y)
         break

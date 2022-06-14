@@ -1,4 +1,4 @@
-from abc import ABCMeta, abstractmethod
+import random
 
 import pytorch_lightning as pl
 import torch
@@ -11,30 +11,22 @@ from recommender.datasets.negative_sampler import (
 )
 
 
-class DataloaderBase(metaclass=ABCMeta):
-    def __init__(self, dataset):
-        dataset = dataset.load_dataset()
+class BertDataModule(pl.LightningDataModule):
+    def __init__(self):
+        super().__init__()
 
-        self.train = dataset["train"]
-        self.val = dataset["val"]
-        self.test = dataset["test"]
-        self.umap = dataset["umap"]
-        self.smap = dataset["smap"]
+        movie_lens_dataset = ML1MDataset()
+        dataset = movie_lens_dataset.load_dataset()
 
-        self.user_count = len(self.umap)
-        self.item_count = len(self.smap)
+        smap = dataset["smap"]
+        umap = dataset["umap"]
 
-    @abstractmethod
-    def get_pytorch_dataloaders(self):
-        pass
+        user_count = len(smap)
+        item_count = len(umap)
 
-
-class BertDataloader(DataloaderBase):
-    def __init__(self, dataset):
-        super().__init__(dataset)
-
-        config.NUM_ITEMS = len(self.smap)
-        self.CLOZE_MASK_TOKEN = self.item_count + 1
+        item_count = len(smap)
+        cloze_mask_token = item_count + 1
+        rng = random.Random(config.DATALOADER_RANDOM_SEED)
 
         if config.TRAIN_NEGATIVE_SAMPLER_CODE == "popular":
             negative_sampler = PopularNegativeSampler
@@ -43,37 +35,68 @@ class BertDataloader(DataloaderBase):
         else:
             raise ValueError
 
-        train_negative_sampler = negative_sampler(
-            self.train,
-            self.val,
-            self.test,
-            self.user_count,
-            self.item_count,
-            config.TRAIN_NEGATIVE_SAMPLE_SIZE,
-            config.TRAIN_NEGATIVE_SAMPLING_SEED,
-        )
+        # train_negative_sampler = negative_sampler(
+        #     dataset["train"],
+        #     dataset["val"],
+        #     dataset["test"],
+        #     user_count,
+        #     item_count,
+        #     config.TRAIN_NEGATIVE_SAMPLE_SIZE,
+        #     config.TRAIN_NEGATIVE_SAMPLING_SEED,
+        # )
         test_negative_sampler = negative_sampler(
-            self.train,
-            self.val,
-            self.test,
-            self.user_count,
-            self.item_count,
+            dataset["train"],
+            dataset["val"],
+            dataset["test"],
+            user_count,
+            item_count,
             config.TEST_NEGATIVE_SAMPLE_SIZE,
             config.TEST_NEGATIVE_SAMPLING_SEED,
         )
 
-        self.train_negative_samples = train_negative_sampler.get_negative_samples()
-        self.test_negative_samples = test_negative_sampler.get_negative_samples()
+        # train_negative_samples = train_negative_sampler.get_negative_samples()
+        test_negative_samples = test_negative_sampler.get_negative_samples()
 
-    def get_pytorch_dataloaders(self):
-        pass
+        self.bert_train_dataset = BertTrainDataset(
+            dataset["train"],
+            config.BERT_MAX_LEN,
+            config.BERT_MASK_PROB,
+            cloze_mask_token,
+            item_count,
+            rng,
+        )
 
+        self.bert_eval_dataset = BertEvalDataset(
+            dataset["train"],
+            dataset["val"],
+            config.BERT_MAX_LEN,
+            cloze_mask_token,
+            test_negative_samples,
+        )
 
-class BertDataModule(pl.LightningDataModule):
-    def __init__(self):
-        super().__init__()
+    def train_dataloader(self):
+        return torch.utils.data.DataLoader(
+            self.bert_train_dataset,
+            batch_size=config.TRAIN_BATCH_SIZE,
+        )
 
-        dataset = ML1MDataset()
+    def val_dataloader(self):
+        return torch.utils.data.DataLoader(
+            self.bert_eval_dataset,
+            batch_size=config.VAL_BATCH_SIZE,
+        )
+
+    def test_dataloader(self):
+        return torch.utils.data.DataLoader(
+            self.bert_eval_dataset,
+            batch_size=config.TEST_BATCH_SIZE,
+        )
+
+    def predict_dataloader(self):
+        return torch.utils.data.DataLoader(
+            self.bert_eval_dataset,
+            batch_size=config.TEST_BATCH_SIZE,
+        )
 
 
 class BertTrainDataset(torch.utils.data.Dataset):
