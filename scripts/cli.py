@@ -9,6 +9,7 @@ from common import config
 from recommender.datasets.data import ML1MDataset
 from recommender.datasets.dataloader import BertDataModule, BertTrainDataset
 from recommender.model.model import Bert4RecModel
+from recommender.trainer import train_model
 
 app = typer.Typer()
 
@@ -82,16 +83,20 @@ def train():
         break
 
     print("Val Dataloader")
-    for x, y in val_dataloader:
+    for x, y, z in val_dataloader:
         print("x: ", x)
         print("y: ", y)
+        print("z: ", z)
         break
 
     print("Test Dataloader")
-    for x, y in test_dataloader:
+    for x, y, z in test_dataloader:
         print("x: ", x)
         print("y: ", y)
+        print("z: ", z)
         break
+
+    train_model()
 
 
 if __name__ == "__main__":

@@ -84,18 +84,24 @@ class BertDataModule(pl.LightningDataModule):
         return torch.utils.data.DataLoader(
             self.bert_eval_dataset,
             batch_size=config.VAL_BATCH_SIZE,
+            shuffle=False,
+            pin_memory=True,
         )
 
     def test_dataloader(self):
         return torch.utils.data.DataLoader(
             self.bert_eval_dataset,
             batch_size=config.TEST_BATCH_SIZE,
+            shuffle=False,
+            pin_memory=True,
         )
 
     def predict_dataloader(self):
         return torch.utils.data.DataLoader(
             self.bert_eval_dataset,
             batch_size=config.TEST_BATCH_SIZE,
+            shuffle=False,
+            pin_memory=True,
         )
 
 
@@ -129,6 +135,8 @@ class BertTrainDataset(torch.utils.data.Dataset):
                     tokens.append(self.rng.randint(1, self.num_items))
                 else:
                     tokens.append(s)
+
+                labels.append(s)
             else:
                 tokens.append(s)
                 labels.append(0)
@@ -166,7 +174,7 @@ class BertEvalDataset(torch.utils.data.Dataset):
         negs = self.negative_samples[user]
 
         candidates = answer + negs
-        labels = [1] * len(answer) + [0] * len[negs]
+        labels = [1] * len(answer) + [0] * len(negs)
 
         seq = seq + [self.mask_token]
         seq = seq[-self.max_len :]

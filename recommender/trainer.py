@@ -1,8 +1,11 @@
 import pytorch_lightning as pl
 import torch.nn as nn
 import torch.optim as optim
+from pytorch_lightning import Trainer
 
 from common import config
+from recommender.datasets.dataloader import BertDataModule
+from recommender.datasets.utils import recalls_and_ndcgs_for_ks
 from recommender.model.model import Bert4RecModel
 
 
@@ -19,7 +22,7 @@ class Bert4RecTrainer(pl.LightningModule):
         x = self.model(x)
         return self.out(x)
 
-    def train_step(self, batch, batch_idx):
+    def training_step(self, batch, batch_idx):
         seqs, labels = batch
         logits = self(seqs)  # B x T x V
 
@@ -30,28 +33,38 @@ class Bert4RecTrainer(pl.LightningModule):
         return loss
 
     def validation_step(self, batch, batch_idx):
-        seqs, labels = batch
-        logits = self(seqs)
+        seqs, candidates, labels = batch
+        scores = self(seqs)  # B x T x V
 
-        logits = logits.view(-1, logits.size(-1))  # (B * T) x V
-        labels = labels.view(-1)
-        loss = self.ce(logits, labels)
-        self.log("val_loss", loss, on_epoch=True)
+        scores = scores[:, -1, :]  # B x V
+        scores = scores.gather(1, candidates)
+
+        metrics = recalls_and_ndcgs_for_ks(scores, labels, config.METRIC_KS)
+        self.log("val_metrics", metrics, on_epoch=True)
 
     def test_step(self, batch, batch_idx):
-        seqs, labels = batch
-        logits = self(seqs)
+        seqs, candidates, labels = batch
+        scores = self(seqs)  # B x T x V
 
-        logits = logits.view(-1, logits.size(-1))  # (B * T) x V
-        labels = labels.view(-1)
-        loss = self.ce(logits, labels)
-        self.log("test_loss", loss, on_epoch=True)
+        scores = scores[:, -1, :]  # B x V
+        scores = scores.gather(1, candidates)
+
+        metrics = recalls_and_ndcgs_for_ks(scores, labels, config.METRIC_KS)
+        self.log("test_metrics", metrics, on_epoch=True)
 
     def predict_step(self, batch, batch_idx, dataloader_idx=None):
-        seqs, labels = batch
+        seqs, candidates, labels = batch
         return self(seqs)
 
     def configure_optimizers(self):
         return optim.Adam(
             self.model.parameters(), lr=config.LEARNING_RATE, weight_decay=config.WEIGHT_DECAY
         )
+
+
+def train_model():
+    model = Bert4RecTrainer()
+    data_module = BertDataModule()
+
+    trainer = Trainer()
+    trainer.fit(model, data_module)
