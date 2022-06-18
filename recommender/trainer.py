@@ -1,3 +1,4 @@
+import mlflow.pytorch
 import pytorch_lightning as pl
 import torch.nn as nn
 import torch.optim as optim
@@ -5,7 +6,10 @@ from pytorch_lightning import Trainer
 
 from common import config
 from recommender.datasets.dataloader import BertDataModule
-from recommender.datasets.utils import recalls_and_ndcgs_for_ks
+from recommender.datasets.utils import (
+    print_auto_logged_info,
+    recalls_and_ndcgs_for_ks,
+)
 from recommender.model.model import Bert4RecModel
 
 
@@ -14,13 +18,11 @@ class Bert4RecTrainer(pl.LightningModule):
         super().__init__()
 
         self.model = Bert4RecModel()
-        self.out = nn.Linear(config.BERT_HIDDEN_UNITS, config.NUM_ITEMS + 1)
 
         self.ce = nn.CrossEntropyLoss(ignore_index=0)
 
     def forward(self, x):
-        x = self.model(x)
-        return self.out(x)
+        return self.model(x)
 
     def training_step(self, batch, batch_idx):
         seqs, labels = batch
@@ -40,7 +42,7 @@ class Bert4RecTrainer(pl.LightningModule):
         scores = scores.gather(1, candidates)
 
         metrics = recalls_and_ndcgs_for_ks(scores, labels, config.METRIC_KS)
-        self.log("val_metrics", metrics, on_epoch=True)
+        self.log_dict(metrics, on_epoch=True)
 
     def test_step(self, batch, batch_idx):
         seqs, candidates, labels = batch
@@ -50,7 +52,7 @@ class Bert4RecTrainer(pl.LightningModule):
         scores = scores.gather(1, candidates)
 
         metrics = recalls_and_ndcgs_for_ks(scores, labels, config.METRIC_KS)
-        self.log("test_metrics", metrics, on_epoch=True)
+        self.log_dict(metrics, on_epoch=True)
 
     def predict_step(self, batch, batch_idx, dataloader_idx=None):
         seqs, candidates, labels = batch
@@ -63,8 +65,29 @@ class Bert4RecTrainer(pl.LightningModule):
 
 
 def train_model():
-    model = Bert4RecTrainer()
     data_module = BertDataModule()
+    model = Bert4RecTrainer()
 
-    trainer = Trainer()
-    trainer.fit(model, data_module)
+    trainer = Trainer(
+        default_root_dir=config.MODEL_DIR,
+        max_epochs=config.NUM_EPOCHS,
+        log_every_n_steps=10,
+        accelerator="gpu",
+        devices=1,
+        checkpoint_callback=False,
+        logger=False,
+    )
+
+    # Initialize MLflow and auto log all MLflow entities
+    mlflow.set_experiment("recommender_bert4rec")
+    # mlflow.set_tracking_uri("file:./ml_logs")
+
+    mlflow.pytorch.autolog()
+
+    with mlflow.start_run() as run:
+        trainer.fit(model, data_module)
+        mlflow.pytorch.log_model(model, "model")
+
+    print_auto_logged_info(mlflow.get_run(run_id=run.info.run_id))
+
+    trainer.test(model, data_module)

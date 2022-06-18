@@ -34,6 +34,8 @@ class Bert4RecModel(nn.Module):
             ]
         )
 
+        self.out = nn.Linear(config.BERT_HIDDEN_UNITS, config.NUM_ITEMS + 1)
+
     def forward(self, x):
         mask = (x > 0).unsqueeze(1).repeat(1, x.size(1), 1).unsqueeze(1)
 
@@ -41,5 +43,7 @@ class Bert4RecModel(nn.Module):
 
         for transformer in self.transformer_blocks:
             x = transformer.forward(x, mask)
+
+        x = self.out(x)
 
         return x

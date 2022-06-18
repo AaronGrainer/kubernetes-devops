@@ -21,10 +21,11 @@ class BertDataModule(pl.LightningDataModule):
         smap = dataset["smap"]
         umap = dataset["umap"]
 
-        user_count = len(smap)
-        item_count = len(umap)
-
+        user_count = len(umap)
         item_count = len(smap)
+
+        config.NUM_ITEMS = item_count
+
         cloze_mask_token = item_count + 1
         rng = random.Random(config.DATALOADER_RANDOM_SEED)
 

@@ -8,3 +8,4 @@ fluent-logger==0.10.0
 dvc==2.11.0
 torch==1.11.0
 pytorch-lightning==1.6.4
+mlflow==1.26.1

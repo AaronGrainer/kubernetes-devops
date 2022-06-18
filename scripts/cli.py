@@ -43,6 +43,11 @@ def restaurent_eda():
 
 @app.command()
 def train():
+    train_model()
+
+
+@app.command()
+def main():
     model = Bert4RecModel()
     batch = [torch.zeros(128, 100, dtype=torch.int64), torch.zeros(128, 100, dtype=torch.int64)]
     seqs, labels = batch
@@ -95,8 +100,6 @@ def train():
         print("y: ", y)
         print("z: ", z)
         break
-
-    train_model()
 
 
 if __name__ == "__main__":
