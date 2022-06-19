@@ -81,13 +81,13 @@ def train_model():
     # Initialize MLflow and auto log all MLflow entities
     mlflow.set_experiment("recommender_bert4rec")
     # mlflow.set_tracking_uri("file:./ml_logs")
-
     mlflow.pytorch.autolog()
 
+    # Start training
     with mlflow.start_run() as run:
         trainer.fit(model, data_module)
         mlflow.pytorch.log_model(model, "model")
 
     print_auto_logged_info(mlflow.get_run(run_id=run.info.run_id))
 
-    trainer.test(model, data_module)
+    # trainer.test(model, data_module)

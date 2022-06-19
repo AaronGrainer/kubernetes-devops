@@ -1,3 +1,4 @@
+import json
 import random
 from pathlib import Path
 
@@ -9,6 +10,7 @@ from common import config
 from recommender.datasets.data import ML1MDataset
 from recommender.datasets.dataloader import BertDataModule, BertTrainDataset
 from recommender.model.model import Bert4RecModel
+from recommender.prediction import predict_bert
 from recommender.trainer import train_model
 
 app = typer.Typer()
@@ -47,6 +49,12 @@ def train():
 
 
 @app.command()
+def predict():
+    input = torch.zeros(100, 1, dtype=torch.int64)
+    predict_bert(input)
+
+
+@app.command()
 def main():
     model = Bert4RecModel()
     batch = [torch.zeros(128, 100, dtype=torch.int64), torch.zeros(128, 100, dtype=torch.int64)]
@@ -81,25 +89,39 @@ def main():
     val_dataloader = bert_data_module.val_dataloader()
     test_dataloader = bert_data_module.test_dataloader()
 
-    print("Train Dataloader")
-    for x, y in train_dataloader:
-        print("x: ", x)
-        print("y: ", y)
-        break
+    # print("Train Dataloader")
+    # for x, y in train_dataloader:
+    #     print("x: ", x)
+    #     print("y: ", y)
+    #     break
 
     print("Val Dataloader")
     for x, y, z in val_dataloader:
-        print("x: ", x)
-        print("y: ", y)
-        print("z: ", z)
+        # print("x: ", x)
+        # print("y: ", y)
+        # print("z: ", z)
+
+        with open("val_x.json", "w") as f:
+            print("json.dumps(x.tolist()): ", json.dumps(x.tolist()))
+            f.write(json.dumps(x.tolist(), indent=2))
+        with open("val_y.json", "w") as f:
+            f.write(json.dumps(y.tolist(), indent=2))
+        with open("val_z.json", "w") as f:
+            f.write(json.dumps(z.tolist(), indent=2))
+
         break
 
-    print("Test Dataloader")
-    for x, y, z in test_dataloader:
-        print("x: ", x)
-        print("y: ", y)
-        print("z: ", z)
-        break
+    with open("smap.json", "w") as f:
+        f.write(json.dumps(dataset["smap"], indent=2))
+    with open("umap.json", "w") as f:
+        f.write(json.dumps(dataset["umap"], indent=2))
+
+    # print("Test Dataloader")
+    # for x, y, z in test_dataloader:
+    #     print("x: ", x)
+    #     print("y: ", y)
+    #     print("z: ", z)
+    #     break
 
 
 if __name__ == "__main__":
