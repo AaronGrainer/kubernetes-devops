@@ -45,6 +45,8 @@ METRIC_KS = [1, 5, 10, 20, 50, 100]
 TRAIN_BATCH_SIZE = 128
 VAL_BATCH_SIZE = 128
 TEST_BATCH_SIZE = 128
+DECAY_STEP = 25
+GAMMA = 1.0
 NUM_EPOCHS = 50
 
 # mlflow.set_experiment("recommender_bert4rec")

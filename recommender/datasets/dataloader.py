@@ -36,15 +36,6 @@ class BertDataModule(pl.LightningDataModule):
         else:
             raise ValueError
 
-        # train_negative_sampler = negative_sampler(
-        #     dataset["train"],
-        #     dataset["val"],
-        #     dataset["test"],
-        #     user_count,
-        #     item_count,
-        #     config.TRAIN_NEGATIVE_SAMPLE_SIZE,
-        #     config.TRAIN_NEGATIVE_SAMPLING_SEED,
-        # )
         test_negative_sampler = negative_sampler(
             dataset["train"],
             dataset["val"],
@@ -55,7 +46,6 @@ class BertDataModule(pl.LightningDataModule):
             config.TEST_NEGATIVE_SAMPLING_SEED,
         )
 
-        # train_negative_samples = train_negative_sampler.get_negative_samples()
         test_negative_samples = test_negative_sampler.get_negative_samples()
 
         self.bert_train_dataset = BertTrainDataset(
@@ -75,10 +65,20 @@ class BertDataModule(pl.LightningDataModule):
             test_negative_samples,
         )
 
+        self.bert_test_dataset = BertEvalDataset(
+            dataset["train"],
+            dataset["test"],
+            config.BERT_MAX_LEN,
+            cloze_mask_token,
+            test_negative_samples,
+        )
+
     def train_dataloader(self):
         return torch.utils.data.DataLoader(
             self.bert_train_dataset,
             batch_size=config.TRAIN_BATCH_SIZE,
+            shuffle=True,
+            pin_memory=True,
         )
 
     def val_dataloader(self):
@@ -91,7 +91,7 @@ class BertDataModule(pl.LightningDataModule):
 
     def test_dataloader(self):
         return torch.utils.data.DataLoader(
-            self.bert_eval_dataset,
+            self.bert_test_dataset,
             batch_size=config.TEST_BATCH_SIZE,
             shuffle=False,
             pin_memory=True,

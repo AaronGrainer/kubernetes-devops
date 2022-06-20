@@ -111,6 +111,12 @@ def main():
 
         break
 
+    with open("train.json", "w") as f:
+        f.write(json.dumps(dataset["train"], indent=2))
+    with open("val.json", "w") as f:
+        f.write(json.dumps(dataset["val"], indent=2))
+    with open("test.json", "w") as f:
+        f.write(json.dumps(dataset["test"], indent=2))
     with open("smap.json", "w") as f:
         f.write(json.dumps(dataset["smap"], indent=2))
     with open("umap.json", "w") as f:

@@ -134,3 +134,4 @@ data/ml-1m
 data/preprocessed/
 .vscode/
 mlruns/*
+*.json

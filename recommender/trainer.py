@@ -54,14 +54,14 @@ class Bert4RecTrainer(pl.LightningModule):
         metrics = recalls_and_ndcgs_for_ks(scores, labels, config.METRIC_KS)
         self.log_dict(metrics, on_epoch=True)
 
-    def predict_step(self, batch, batch_idx, dataloader_idx=None):
-        seqs, candidates, labels = batch
-        return self(seqs)
-
     def configure_optimizers(self):
-        return optim.Adam(
+        optimizer = optim.Adam(
             self.model.parameters(), lr=config.LEARNING_RATE, weight_decay=config.WEIGHT_DECAY
         )
+        scheduler = optim.lr_scheduler.StepLR(
+            optimizer, step_size=config.DECAY_STEP, gamma=config.GAMMA
+        )
+        return [optimizer], [scheduler]
 
 
 def train_model():
