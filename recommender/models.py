@@ -2,7 +2,7 @@ import pytorch_lightning as pl
 import torch
 
 from common import config
-from recommender2.utils import masked_accuracy, masked_ce
+from recommender.utils import masked_accuracy, masked_ce
 
 
 class Recommender(pl.LightningModule):

@@ -1,30 +1,57 @@
-from pathlib import Path
-from typing import List
-
+import numpy as np
+import pandas as pd
 import torch
 
 import mlflow
 from common import config
+from recommender.utils import map_column
+
+model_path = "C:/Users/Grainer/Projects/recommender-devops/model/recommender.ckpt"
+
+run_id = "aa050e4814e84183a9618e763c008a2a"
+model_uri = f"runs:/{run_id}/model"
 
 
-def predict_bert(input: List):
-    # run_id = open(Path(config.MODEL_DIR, "intent_run_id.txt")).read()
-    run_id = "0972ddc1bb304be5a65ec2272825719a"
-    model_uri = f"runs:/{run_id}/model"
+def load():
+    data = pd.read_csv(config.MOVIELENS_RATING_DATA_DIR)
+    data = data.head(100000)
+    movies = pd.read_csv(config.MOVIELENS_MOVIE_DATA_DIR)
 
-    loaded_model = mlflow.pytorch.load_model(model_uri)
-    device = torch.device("cpu")
-    loaded_model.to(device)
+    data.sort_values(by="timestamp", inplace=True)
+
+    data, mapping, _ = map_column(data, col_name="movieId")
+
+    model = mlflow.pytorch.load_model(model_uri)
+    model.eval()
+
+    movie_to_idx = {
+        a: mapping[b]
+        for a, b in zip(movies.title.tolist(), movies.movieId.tolist())
+        if b in mapping
+    }
+    idx_to_movie = {v: k for k, v in movie_to_idx.items()}
+
+    return model, movie_to_idx, idx_to_movie
+
+
+def predict(list_movies):
+    model, movie_to_idx, idx_to_movie = load()
+
+    ids = (
+        [config.PAD] * (120 - len(list_movies) - 1)
+        + [movie_to_idx[a] for a in list_movies]
+        + [config.MASK]
+    )
+
+    source = torch.tensor(ids, dtype=torch.long).unsqueeze(0)
 
     with torch.no_grad():
-        logits = loaded_model(input)
-        print("logits: ", logits, len(logits), len(logits[0]), len(logits[0][0]))
+        prediction = model(source)
 
-        # logits = logits.view(-1, logits.size(-1))  # (B * T) x V
-        # print('logits: ', logits, len(logits), len(logits[0]))
-        # pred = torch.argmax(logits)
-        # print('pred: ', pred)
-        logits = logits[:, -1, :]  # B x V
-        print("logits: ", logits, len(logits), len(logits[0]))
-        pred = torch.argmax(logits, dim=0)
-        print("pred: ", pred)
+    masked_pred = prediction[0, -1].numpy()
+
+    sorted_predicted_ids = np.argsort(masked_pred).tolist()[::-1]
+
+    sorted_predicted_ids = [a for a in sorted_predicted_ids if a not in ids]
+
+    return [idx_to_movie[a] for a in sorted_predicted_ids[:30] if a in idx_to_movie]

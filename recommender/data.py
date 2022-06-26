@@ -1,10 +1,9 @@
 import random
 
 import torch
-from numpy import pad
 
 from common import config
-from recommender2.utils import (
+from recommender.utils import (
     get_context,
     mask_last_elements_list,
     mask_list,

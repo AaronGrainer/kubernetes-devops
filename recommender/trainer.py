@@ -1,80 +1,39 @@
-import mlflow.pytorch
+import pandas as pd
 import pytorch_lightning as pl
-import torch.nn as nn
-import torch.optim as optim
-from pytorch_lightning import Trainer
+from torch.utils.data import DataLoader
 
+import mlflow
 from common import config
-from recommender.datasets.dataloader import BertDataModule
-from recommender.datasets.utils import (
-    print_auto_logged_info,
-    recalls_and_ndcgs_for_ks,
-)
-from recommender.model.model import Bert4RecModel
+from recommender.data import Dataset
+from recommender.models import Recommender
+from recommender.utils import cleanup, map_column
 
 
-class Bert4RecTrainer(pl.LightningModule):
-    def __init__(self):
-        super().__init__()
+def train():
+    data = pd.read_csv(config.MOVIELENS_RATING_DATA_DIR)
+    data = data.head(100000)
+    data.sort_values(by="timestamp", inplace=True)
 
-        self.model = Bert4RecModel()
+    data, mapping, inverse_mapping = map_column(data, col_name="movieId")
 
-        self.ce = nn.CrossEntropyLoss(ignore_index=0)
+    group_by_train = data.groupby(by="userId")
 
-    def forward(self, x):
-        return self.model(x)
+    groups = list(group_by_train.groups)
 
-    def training_step(self, batch, batch_idx):
-        seqs, labels = batch
-        logits = self(seqs)  # B x T x V
+    train_data = Dataset(groups=groups, group_by=group_by_train, split="train")
+    val_data = Dataset(groups=groups, group_by=group_by_train, split="val")
 
-        logits = logits.view(-1, logits.size(-1))  # (B * T) x V
-        labels = labels.view(-1)
-        loss = self.ce(logits, labels)
-        self.log("train_loss", loss, on_epoch=True)
-        return loss
+    train_loader = DataLoader(train_data, batch_size=config.TRAIN_BATCH_SIZE, shuffle=True)
+    val_loader = DataLoader(val_data, batch_size=config.VAL_BATCH_SIZE, shuffle=False)
 
-    def validation_step(self, batch, batch_idx):
-        seqs, candidates, labels = batch
-        scores = self(seqs)  # B x T x V
+    model = Recommender(vocab_size=len(mapping) + 2)
 
-        scores = scores[:, -1, :]  # B x V
-        scores = scores.gather(1, candidates)
-
-        metrics = recalls_and_ndcgs_for_ks(scores, labels, config.METRIC_KS)
-        self.log_dict(metrics, on_epoch=True)
-
-    def test_step(self, batch, batch_idx):
-        seqs, candidates, labels = batch
-        scores = self(seqs)  # B x T x V
-
-        scores = scores[:, -1, :]  # B x V
-        scores = scores.gather(1, candidates)
-
-        metrics = recalls_and_ndcgs_for_ks(scores, labels, config.METRIC_KS)
-        self.log_dict(metrics, on_epoch=True)
-
-    def configure_optimizers(self):
-        optimizer = optim.Adam(
-            self.model.parameters(), lr=config.LEARNING_RATE, weight_decay=config.WEIGHT_DECAY
-        )
-        scheduler = optim.lr_scheduler.StepLR(
-            optimizer, step_size=config.DECAY_STEP, gamma=config.GAMMA
-        )
-        return [optimizer], [scheduler]
-
-
-def train_model():
-    data_module = BertDataModule()
-    model = Bert4RecTrainer()
-
-    trainer = Trainer(
+    trainer = pl.Trainer(
         default_root_dir=config.MODEL_DIR,
         max_epochs=config.NUM_EPOCHS,
         log_every_n_steps=10,
         accelerator="gpu",
         devices=1,
-        checkpoint_callback=False,
         logger=False,
     )
 
@@ -85,9 +44,11 @@ def train_model():
 
     # Start training
     with mlflow.start_run() as run:
-        trainer.fit(model, data_module)
+        trainer.fit(model, train_loader, val_loader)
+        trainer.test(dataloaders=val_loader)
         mlflow.pytorch.log_model(model, "model")
 
-    print_auto_logged_info(mlflow.get_run(run_id=run.info.run_id))
+    mlflow_run_id = run.info.run_id
 
-    # trainer.test(model, data_module)
+    # Cleanup
+    cleanup()
