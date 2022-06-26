@@ -37,6 +37,7 @@ CHANNELS = 128
 DROPOUT = 0.4
 LEARNING_RATE = 1e-4
 NUM_EPOCHS = 1
+MODEL_URI = "runs:/{}/model"
 
 # mlflow.set_experiment("recommender_bert4rec")
 # mlflow.set_tracking_uri("file:./ml_logs")

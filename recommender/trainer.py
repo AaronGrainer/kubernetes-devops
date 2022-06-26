@@ -1,20 +1,28 @@
 import pandas as pd
 import pytorch_lightning as pl
+import typer
 from torch.utils.data import DataLoader
 
 import mlflow
 from common import config
+from common.config import logger
 from recommender.data import Dataset
 from recommender.models import Recommender
 from recommender.utils import cleanup, map_column
 
+app = typer.Typer()
 
+
+@app.command()
 def train():
+    logger.info("Starting Recommender Trainer")
+
+    logger.info("Loading Dataset")
     data = pd.read_csv(config.MOVIELENS_RATING_DATA_DIR)
     data = data.head(100000)
     data.sort_values(by="timestamp", inplace=True)
 
-    data, mapping, inverse_mapping = map_column(data, col_name="movieId")
+    data, mapping, _ = map_column(data, col_name="movieId")
 
     group_by_train = data.groupby(by="userId")
 
@@ -25,7 +33,9 @@ def train():
 
     train_loader = DataLoader(train_data, batch_size=config.TRAIN_BATCH_SIZE, shuffle=True)
     val_loader = DataLoader(val_data, batch_size=config.VAL_BATCH_SIZE, shuffle=False)
+    logger.info("Dataset loaded")
 
+    logger.info("Initializing trainer")
     model = Recommender(vocab_size=len(mapping) + 2)
 
     trainer = pl.Trainer(
@@ -51,4 +61,14 @@ def train():
     mlflow_run_id = run.info.run_id
 
     # Cleanup
+    logger.info("Cleaning up after training")
     cleanup()
+
+
+@app.command()
+def main():
+    return "Recommender Trainer"
+
+
+if __name__ == "__main__":
+    app()
