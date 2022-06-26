@@ -131,6 +131,7 @@ dmypy.json
 # Extra files
 secrets/*.json
 data/ml-1m
+data/ml-20m
 data/preprocessed/
 .vscode/
 mlruns/*

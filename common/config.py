@@ -11,6 +11,8 @@ BASE_DIR = Path(__file__).parent.parent.absolute()
 LOGS_DIR = Path(BASE_DIR, "logs")
 MODEL_DIR = Path(BASE_DIR, "model")
 DATA_DIR = Path(BASE_DIR, "data")
+MOVIELENS_RATING_DATA_DIR = Path(BASE_DIR, "data", "ml-20m", "ratings.csv")
+MOVIELENS_MOVIE_DATA_DIR = Path(BASE_DIR, "data", "ml-20m", "movies.csv")
 
 # Data
 MOVIE_DATASET_DIR = Path(DATA_DIR, "movie")
@@ -28,7 +30,7 @@ BERT_DROPOUT = 0.1
 BERT_NUM_HEADS = 4
 BERT_NUM_BLOCKS = 2
 NUM_ITEMS = 0
-LEARNING_RATE = 0.001
+# LEARNING_RATE = 0.001
 WEIGHT_DECAY = 0
 MIN_RATING = 0
 MIN_SC = 0
@@ -42,12 +44,23 @@ TEST_NEGATIVE_SAMPLER_CODE = "random"  # random / popular
 TEST_NEGATIVE_SAMPLE_SIZE = 100
 TEST_NEGATIVE_SAMPLING_SEED = 98765
 METRIC_KS = [1, 5, 10, 20, 50, 100]
-TRAIN_BATCH_SIZE = 128
-VAL_BATCH_SIZE = 128
-TEST_BATCH_SIZE = 128
+TRAIN_BATCH_SIZE = 64
+VAL_BATCH_SIZE = 64
+TEST_BATCH_SIZE = 64
 DECAY_STEP = 25
 GAMMA = 1.0
-NUM_EPOCHS = 50
+
+MASK = 1
+PAD = 0
+CAP = 0
+MASK_PROBABILITY = 0.5
+VAL_CONTEXT_SIZE = 5
+HISTORY_SIZE = 120
+DEFAULT_CONTEXT_SIZE = 120
+CHANNELS = 128
+DROPOUT = 0.4
+LEARNING_RATE = 1e-4
+NUM_EPOCHS = 1
 
 # mlflow.set_experiment("recommender_bert4rec")
 # mlflow.set_tracking_uri("file:./ml_logs")
