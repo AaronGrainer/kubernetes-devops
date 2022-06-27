@@ -68,20 +68,20 @@ test:
 # Local Docker
 docker-build:
 	docker image build -f $(COMPONENT)/Dockerfile . \
-		-t evelyn-$(COMPONENT):latest
+		-t recommender-devops-$(COMPONENT):latest
 
 docker-run:
 	make docker-build $(COMPONENT)
-	docker run -p $(PORT):$(PORT) evelyn-$(COMPONENT):latest
+	docker run -p $(PORT):$(PORT) recommender-devops-$(COMPONENT):latest
 
 docker-push:
 	docker login
-	docker image tag evelyn-$(COMPONENT):latest $(GCR_REPO)/evelyn-$(COMPONENT):latest
-	docker push $(GCR_REPO)/evelyn-$(COMPONENT):latest
+	docker image tag recommender-devops-$(COMPONENT):latest $(GCR_REPO)/recommender-devops-$(COMPONENT):latest
+	docker push $(GCR_REPO)/recommender-devops-$(COMPONENT):latest
 
 docker-build-push-pipeline:
-	docker build --tag $(GCR_REPO)/evelyn-pipeline-$(COMPONENT):v1 -f pipeline/Dockerfile . \
-		&& docker push $(GCR_REPO)/evelyn-pipeline-$(COMPONENT):v1
+	docker build --tag $(GCR_REPO)/recommender-devops-pipeline-$(COMPONENT):v1 -f pipeline/Dockerfile . \
+		&& docker push $(GCR_REPO)/recommender-devops-pipeline-$(COMPONENT):v1
 
 
 # Kubernetes
@@ -90,34 +90,58 @@ minikube-start:
 	minikube dashboard
 
 create-namespaces:
-	kubectl create namespace evelyn-dev
-	kubectl create namespace evelyn-staging
-	kubectl create namespace evelyn-prod
+	kubectl create namespace recommender-devops-dev
+	kubectl create namespace recommender-devops-staging
+	kubectl create namespace recommender-devops-prod
 
 
 # Helm
 helm-install:
 	cd helm && \
-	helm install evelyn-$(COMPONENT)-$(ENV) evelyn-$(COMPONENT) -n evelyn-$(ENV) -f evelyn-$(COMPONENT)/values-$(ENV).yaml
+	helm install recommender-devops-$(COMPONENT)-$(ENV) recommender-devops-$(COMPONENT) -n recommender-devops-$(ENV) -f recommender-devops-$(COMPONENT)/values-$(ENV).yaml
 
 helm-upgrade:
 	cd helm && \
-	helm upgrade evelyn-$(COMPONENT)-$(ENV) evelyn-$(COMPONENT) -n evelyn-$(ENV) -f evelyn-$(COMPONENT)/values-$(ENV).yaml
+	helm upgrade recommender-devops-$(COMPONENT)-$(ENV) recommender-devops-$(COMPONENT) -n recommender-devops-$(ENV) -f recommender-devops-$(COMPONENT)/values-$(ENV).yaml
 
 helm-uninstall:
 	cd helm && \
-	helm uninstall evelyn-$(COMPONENT)-$(ENV) -n evelyn-$(ENV)
+	helm uninstall recommender-devops-$(COMPONENT)-$(ENV) -n recommender-devops-$(ENV)
 
 
 # Skaffold
 skaffold-run:
-	skaffold run -m evelyn-$(COMPONENT) -p $(ENV) --tail --port-forward
+	skaffold run -m recommender-devops-$(COMPONENT) -p $(ENV) --tail --port-forward
 
 skaffold-dev:
-	skaffold dev -m evelyn-$(COMPONENT) -p $(ENV) --tail --port-forward
+	skaffold dev -m recommender-devops-$(COMPONENT) -p $(ENV) --tail --port-forward
 
 
 # MLFlow
+mlflow-postgres-docker-run:
+	docker run --name mlflow-database \
+		-v C:\Users\Grainer\Projects\recommender-devops\mlflow-db:/bitnami/postgresql \
+		-e POSTGRESQL_USERNAME=admin \
+		-e POSTGRESQL_PASSWORD=password \
+		-e POSTGRESQL_DATABASE=mlflow-tracking-server-db \
+		--expose 5432 \
+		-p 5432:5432 \
+		bitnami/postgresql
+
+mlflow-docker-build-new:
+	docker build . -f mlflow_new/Dockerfile -t mlflow:latest
+
+mlflow-docker-run:
+	- docker stop mlflow & docker rm mlflow
+	docker run --name mlflow \
+	-v C:\Users\Grainer\Projects\recommender-devops\secrets:/workdir/gcloud-credentials/ \
+	-e ARTIFACT_STORE=gs://personal-mlflow-tracking/artifacts \
+	-p 5000:5000 \
+	--link mlflow-database \
+	mlflow:latest
+
+
+
 mlflow-install:
 	make mlflow-object-credentials-add
 	make mlflow-postgres-install
@@ -125,18 +149,18 @@ mlflow-install:
 	make mlflow-helm-deploy
 
 mlflow-object-credentials-add:
-	- kubectl -n evelyn-$(ENV) delete secret gcsfs-creds
-	kubectl -n evelyn-$(ENV) create secret generic gcsfs-creds --from-file=secrets/keyfile.json
+	- kubectl -n recommender-devops-$(ENV) delete secret gcsfs-creds
+	kubectl -n recommender-devops-$(ENV) create secret generic gcsfs-creds --from-file=secrets/keyfile.json
 
 mlflow-postgres-install:
 	helm repo add bitnami https://charts.bitnami.com/bitnami
 
-	- helm delete mlf-db -n evelyn-$(ENV)
-	- kubectl -n evelyn-$(ENV) delete pvc data-mlf-db-postgresql-0
+	- helm delete mlf-db -n recommender-devops-$(ENV)
+	- kubectl -n recommender-devops-$(ENV) delete pvc data-mlf-db-postgresql-0
 
 	helm install mlf-db bitnami/postgresql \
 		-f mlflow/postgresql-values.yaml \
-		-n evelyn-$(ENV)
+		-n recommender-devops-$(ENV)
 
 mlflow-docker-build:
 	docker build --tag ${GCR_REPO}/mlflow-tracking-server:v1 -f mlflow/Dockerfile .
@@ -145,7 +169,7 @@ mlflow-docker-build:
 mlflow-helm-deploy:
 	helm repo add mlflow-tracking https://artefactory.github.io/mlflow-tracking-server/
 
-	- helm delete mlflow-tracking-server -n evelyn-$(ENV)
+	- helm delete mlflow-tracking-server -n recommender-devops-$(ENV)
 
 	helm install mlflow-tracking-server mlflow-tracking/mlflow-tracking-server \
 		--set env.mlflowArtifactPath=${MLFLOW_GS_ARTIFACT_PATH} \
@@ -156,13 +180,13 @@ mlflow-helm-deploy:
 		--set env.mlflowDBPort=5432 \
 		--set image.repository=${GCR_REPO}/mlflow-tracking-server \
 		--set image.tag=v1 \
-		-n evelyn-$(ENV) \
+		-n recommender-devops-$(ENV) \
 		# --set service.type=LoadBalancer
 
 mlflow-port-forward:
-	# kubectl get -n evelyn-$(ENV) svc -w mlflow-tracking-server
-	$(eval MLFLOW_POD_NAME := $(shell kubectl get pods -n evelyn-$(ENV) -l "app.kubernetes.io/name=mlflow-tracking-server,app.kubernetes.io/instance=mlflow-tracking-server" -o jsonpath="{.items[0].metadata.name}"))
-	kubectl -n evelyn-$(ENV) port-forward $(MLFLOW_POD_NAME) 8080:80
+	# kubectl get -n recommender-devops-$(ENV) svc -w mlflow-tracking-server
+	$(eval MLFLOW_POD_NAME := $(shell kubectl get pods -n recommender-devops-$(ENV) -l "app.kubernetes.io/name=mlflow-tracking-server,app.kubernetes.io/instance=mlflow-tracking-server" -o jsonpath="{.items[0].metadata.name}"))
+	kubectl -n recommender-devops-$(ENV) port-forward $(MLFLOW_POD_NAME) 8080:80
 
 
 # Helm Prometheus
@@ -171,13 +195,13 @@ helm-prometheus-repo-add:
 	helm repo update
 
 helm-prometheus-install:
-	helm install prometheus prometheus-community/kube-prometheus-stack -n evelyn-$(ENV)
+	helm install prometheus prometheus-community/kube-prometheus-stack -n recommender-devops-$(ENV)
 
 grafana-port-forward:
-	kubectl port-forward deployment/prometheus-grafana 3000 -n evelyn-$(ENV)	# admin/prom-operator
+	kubectl port-forward deployment/prometheus-grafana 3000 -n recommender-devops-$(ENV)	# admin/prom-operator
 
 prometheus-port-forward:
-	kubectl port-forward prometheus-prometheus-kube-prometheus-prometheus-0 9090 -n evelyn-$(ENV)
+	kubectl port-forward prometheus-prometheus-kube-prometheus-prometheus-0 9090 -n recommender-devops-$(ENV)
 
 
 # Argo
@@ -189,33 +213,33 @@ argo-cli-install:
 	argo version
 
 argo-deploy-components:
-	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/argo-workflow.yaml
+	kubectl -n recommender-devops-$(ENV) apply -f pipeline/argo-component-manifest/argo-workflow.yaml
 
-	# kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/argo-events.yaml
-	# kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/event-bus.yaml
-	# kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/event-source.yaml
+	# kubectl -n recommender-devops-$(ENV) apply -f pipeline/argo-component-manifest/argo-events.yaml
+	# kubectl -n recommender-devops-$(ENV) apply -f pipeline/argo-component-manifest/event-bus.yaml
+	# kubectl -n recommender-devops-$(ENV) apply -f pipeline/argo-component-manifest/event-source.yaml
 
-	# kubectl -n evelyn-$(ENV) apply -f pipeline/argo-component-manifest/workflow-service-account.yaml
+	# kubectl -n recommender-devops-$(ENV) apply -f pipeline/argo-component-manifest/workflow-service-account.yaml
 
 argo-workflow-port-forward:
-	kubectl -n evelyn-$(ENV) port-forward deployment/argo-server 2746:2746
+	kubectl -n recommender-devops-$(ENV) port-forward deployment/argo-server 2746:2746
 
 argo-workflow-template-deploy:
-	argo template -n evelyn-$(ENV) lint pipeline/argo-manifest/workflow-template.yaml
-	- argo template -n evelyn-$(ENV) delete my-workflow-template
-	argo template -n evelyn-$(ENV) create pipeline/argo-manifest/workflow-template.yaml
+	argo template -n recommender-devops-$(ENV) lint pipeline/argo-manifest/workflow-template.yaml
+	- argo template -n recommender-devops-$(ENV) delete my-workflow-template
+	argo template -n recommender-devops-$(ENV) create pipeline/argo-manifest/workflow-template.yaml
 
 argo-workflow-submit:
-	argo submit -n evelyn-$(ENV) --from workflowtemplate/my-workflow-template
+	argo submit -n recommender-devops-$(ENV) --from workflowtemplate/my-workflow-template
 
 argo-events-deploy:
-	kubectl -n evelyn-$(ENV) delete -f pipeline/argo-manifest/webhook-sensor.yaml
-	kubectl -n evelyn-$(ENV) apply -f pipeline/argo-manifest/webhook-sensor.yaml
+	kubectl -n recommender-devops-$(ENV) delete -f pipeline/argo-manifest/webhook-sensor.yaml
+	kubectl -n recommender-devops-$(ENV) apply -f pipeline/argo-manifest/webhook-sensor.yaml
 	make argo-events-port-forward
 
 argo-events-port-forward:
-	$(eval ARGO_WEBHOOK_POD_NAME := $(shell kubectl -n evelyn-$(ENV) get pod -l eventsource-name=webhook -o name))
-	kubectl -n evelyn-$(ENV) port-forward $(ARGO_WEBHOOK_POD_NAME) 12000:12000
+	$(eval ARGO_WEBHOOK_POD_NAME := $(shell kubectl -n recommender-devops-$(ENV) get pod -l eventsource-name=webhook -o name))
+	kubectl -n recommender-devops-$(ENV) port-forward $(ARGO_WEBHOOK_POD_NAME) 12000:12000
 
 curl-argo-events:
 	curl -d '{"message":"Hello there"}' -H "Content-Type: application/json" -X POST http://localhost:12000/deploy
@@ -224,32 +248,32 @@ curl-argo-events:
 # MongoDB
 helm-install-mongodb:
 	helm repo add bitnami https://charts.bitnami.com/bitnami
-	helm install evelyn-mongo bitnami/mongodb -n evelyn-$(ENV)
+	helm install recommender-devops-mongo bitnami/mongodb -n recommender-devops-$(ENV)
 
 mongodb-password:
-	kubectl get secret --namespace evelyn-$(ENV) evelyn-mongo-mongodb -o jsonpath="{.data.mongodb-root-password}" | base64 --decode
+	kubectl get secret --namespace recommender-devops-$(ENV) recommender-devops-mongo-mongodb -o jsonpath="{.data.mongodb-root-password}" | base64 --decode
 
 mongodb-port-forward:
-	kubectl port-forward --namespace evelyn-$(ENV) svc/evelyn-mongo-mongodb 27011:27017
+	kubectl port-forward --namespace recommender-devops-$(ENV) svc/recommender-devops-mongo-mongodb 27011:27017
 
 
 # Redis
 helm-install-redis:
 	helm repo add bitnami https://charts.bitnami.com/bitnami
-	helm install evelyn-redis bitnami/redis -n evelyn-$(ENV)
+	helm install recommender-devops-redis bitnami/redis -n recommender-devops-$(ENV)
 
 
 # ElasticSearch
 helm-install-elasticsearch:
 	helm repo add bitnami https://charts.bitnami.com/bitnami
-	helm install evelyn-elasticsearch bitnami/elasticsearch -n evelyn-$(ENV)
+	helm install recommender-devops-elasticsearch bitnami/elasticsearch -n recommender-devops-$(ENV)
 
 elasticsearch-port-forward:
-	kubectl port-forward --namespace evelyn-dev svc/evelyn-elasticsearch-coordinating-only 9200:9200 & \
+	kubectl port-forward --namespace recommender-devops-dev svc/recommender-devops-elasticsearch-coordinating-only 9200:9200 & \
     	curl http://127.0.0.1:9200/
 
 
 # Fluentd
 helm-install-fluentd:
 	helm repo add bitnami https://charts.bitnami.com/bitnami
-	helm install evelyn-fluentd bitnami/fluentd -n evelyn-$(ENV)
+	helm install recommender-devops-fluentd bitnami/fluentd -n recommender-devops-$(ENV)

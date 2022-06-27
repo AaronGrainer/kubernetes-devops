@@ -48,8 +48,8 @@ def train():
     )
 
     # Initialize MLflow and auto log all MLflow entities
-    mlflow.set_experiment("recommender_bert4rec")
-    # mlflow.set_tracking_uri("file:./ml_logs")
+    mlflow.set_tracking_uri("http://localhost:5000/")
+    mlflow.set_experiment("/recommender_bert4rec")
     mlflow.pytorch.autolog()
 
     # Start training
@@ -59,6 +59,7 @@ def train():
         mlflow.pytorch.log_model(model, "model")
 
     mlflow_run_id = run.info.run_id
+    print("mlflow_run_id: ", mlflow_run_id)
 
     # Cleanup
     logger.info("Cleaning up after training")

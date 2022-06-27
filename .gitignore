@@ -136,3 +136,4 @@ data/preprocessed/
 .vscode/
 mlruns/*
 *.json
+mlflow-db/*
