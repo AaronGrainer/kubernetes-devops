@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow
+  labels:
+    app: mlflow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mlflow
+  template:
+    metadata:
+      labels:
+        app:
+          mlflow
+    spec:
+      containers:
+        - name: mlflow
+          image: aarongrainer/mlflow:latest
+          ports:
+            - name: http
+              containerPort: 5000
+              protocol: TCP
+          env:
+            - name: DB_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: mlflow-config
+                  key: DB_USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow-db-postgresql
+                  key: postgres-password
+            - name: DB_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: mlflow-config
+                  key: DB_URL
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: mlflow-config
+                  key: DB_NAME
+            - name: GCP_PROJECT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: mlflow-config
+                  key: GCP_PROJECT_ID
+            - name: ARTIFACT_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: mlflow-config
+                  key: ARTIFACT_URI
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+      volumes:
+        - name: config
+          configMap:
+            name: mlflow-config
+        - name: secret
+          secret:
+            secretName: mlflow-db-postgresql
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlflow
+spec:
+  selector:
+    app: mlflow
+  ports:
+  - port: 5000
+    targetPort: 5000
+
+

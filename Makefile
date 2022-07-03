@@ -5,7 +5,7 @@ COMPONENT ?= frontend
 PORT ?= 8501
 
 GCR_REPO ?= aarongrainer
-MLFLOW_GS_ARTIFACT_PATH ?= gs://mlflow-tracking-storage/artifacts
+MLFLOW_GS_ARTIFACT_PATH ?= gs://personal-mlflow-tracking/artifacts
 
 
 # Initialize project
@@ -117,7 +117,7 @@ skaffold-dev:
 	skaffold dev -m recommender-devops-$(COMPONENT) -p $(ENV) --tail --port-forward
 
 
-# MLFlow
+# MLFlow Docker
 mlflow-postgres-docker-run:
 	docker run --name mlflow-database \
 		-v C:\Users\Grainer\Projects\recommender-devops\mlflow-db:/bitnami/postgresql \
@@ -128,8 +128,8 @@ mlflow-postgres-docker-run:
 		-p 5432:5432 \
 		bitnami/postgresql
 
-mlflow-docker-build-new:
-	docker build . -f mlflow_new/Dockerfile -t mlflow:latest
+mlflow-docker-build:
+	docker build . -f mlflow/Dockerfile -t mlflow:latest
 
 mlflow-docker-run:
 	- docker stop mlflow & docker rm mlflow
@@ -140,53 +140,30 @@ mlflow-docker-run:
 	--link mlflow-database \
 	mlflow:latest
 
-
-
+# MLFlow Kubernetes
 mlflow-install:
 	make mlflow-object-credentials-add
 	make mlflow-postgres-install
-	make mlflow-docker-build
-	make mlflow-helm-deploy
+	make mlflow-build
+	kubectl apply -f kubernetes/mlflow-config.yaml
+	kubectl apply -f kubernetes/mlflow.yaml
 
 mlflow-object-credentials-add:
 	- kubectl -n recommender-devops-$(ENV) delete secret gcsfs-creds
-	kubectl -n recommender-devops-$(ENV) create secret generic gcsfs-creds --from-file=secrets/keyfile.json
+	kubectl -n recommender-devops-$(ENV) create secret generic gcsfs-creds --from-file=secrets/gcloud-credentials.json
 
 mlflow-postgres-install:
 	helm repo add bitnami https://charts.bitnami.com/bitnami
 
-	- helm delete mlf-db -n recommender-devops-$(ENV)
-	- kubectl -n recommender-devops-$(ENV) delete pvc data-mlf-db-postgresql-0
+	- helm delete mlflow-db
+	- kubectl delete pvc data-mlflow-db-postgresql-0
 
-	helm install mlf-db bitnami/postgresql \
-		-f mlflow/postgresql-values.yaml \
-		-n recommender-devops-$(ENV)
+	helm install mlflow-db bitnami/postgresql \
+		-f mlflow/postgresql-values.yaml
 
-mlflow-docker-build:
-	docker build --tag ${GCR_REPO}/mlflow-tracking-server:v1 -f mlflow/Dockerfile .
-	docker push ${GCR_REPO}/mlflow-tracking-server:v1
-
-mlflow-helm-deploy:
-	helm repo add mlflow-tracking https://artefactory.github.io/mlflow-tracking-server/
-
-	- helm delete mlflow-tracking-server -n recommender-devops-$(ENV)
-
-	helm install mlflow-tracking-server mlflow-tracking/mlflow-tracking-server \
-		--set env.mlflowArtifactPath=${MLFLOW_GS_ARTIFACT_PATH} \
-		--set env.mlflowDBAddr=mlf-db-postgresql \
-		--set env.mlflowDBName=mlflow_db \
-		--set env.mlflowUser=postgres \
-		--set env.mlflowPass=mlflow \
-		--set env.mlflowDBPort=5432 \
-		--set image.repository=${GCR_REPO}/mlflow-tracking-server \
-		--set image.tag=v1 \
-		-n recommender-devops-$(ENV) \
-		# --set service.type=LoadBalancer
-
-mlflow-port-forward:
-	# kubectl get -n recommender-devops-$(ENV) svc -w mlflow-tracking-server
-	$(eval MLFLOW_POD_NAME := $(shell kubectl get pods -n recommender-devops-$(ENV) -l "app.kubernetes.io/name=mlflow-tracking-server,app.kubernetes.io/instance=mlflow-tracking-server" -o jsonpath="{.items[0].metadata.name}"))
-	kubectl -n recommender-devops-$(ENV) port-forward $(MLFLOW_POD_NAME) 8080:80
+mlflow-build:
+	docker build . -f mlflow/Dockerfile -t ${GCR_REPO}/mlflow:latest
+	docker push ${GCR_REPO}/mlflow:latest
 
 
 # Helm Prometheus

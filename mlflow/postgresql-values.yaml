@@ -22,10 +22,10 @@ global:
     ## @param global.postgresql.auth.existingSecret Name of existing secret to use for PostgreSQL credentials (overrides `auth.existingSecret`)
     ##
     auth:
-      postgresPassword: "mlflow"
-      username: "postgres"
-      password: "mlflow"
-      database: "mlflow_db"
+      postgresPassword: "password"
+      username: "admin"
+      password: "password"
+      database: "mlflow-tracking-server-db"
       existingSecret: ""
     ## @param global.postgresql.service.ports.postgresql PostgreSQL service port (overrides `service.ports.postgresql`)
     ##

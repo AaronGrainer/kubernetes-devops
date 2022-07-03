@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: recommender-devops-dev
+  labels:
+    name: recommender-devops-dev
+
+---
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: recommender-devops-staging
+  labels:
+    name: recommender-devops-staging
+
+---
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: recommender-devops-prod
+  labels:
+    name: recommender-devops-prod
