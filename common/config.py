@@ -1,10 +1,11 @@
 import logging
 import logging.config
+import os
 import sys
 from pathlib import Path
 
 # import pretty_errors  # NOQA: F401
-from rich.logging import RichHandler
+# from rich.logging import RichHandler
 
 # Directories
 BASE_DIR = Path(__file__).parent.parent.absolute()
@@ -37,10 +38,15 @@ CHANNELS = 128
 DROPOUT = 0.4
 LEARNING_RATE = 1e-4
 NUM_EPOCHS = 1
-MODEL_URI = "runs:/{}/model"
+MODEL_URI = "gs://personal-mlflow-tracking/artifacts/1/{}/artifacts/model/"
 
-# mlflow.set_experiment("recommender_bert4rec")
-# mlflow.set_tracking_uri("file:./ml_logs")
+POSTGRESQL_USERNAME = os.getenv("POSTGRESQL_USERNAME")
+POSTGRESQL_PASSWORD = os.getenv("POSTGRESQL_PASSWORD")
+POSTGRESQL_HOST = os.getenv("POSTGRESQL_HOST")
+POSTGRESQL_PORT = os.getenv("POSTGRESQL_PORT")
+POSTGRESQL_MLFLOW_DB = os.getenv("POSTGRESQL_MLFLOW_DB")
+
+MLFLOW_TRACKING_URI = "http://mlflow:5000/"
 
 # Logger
 logging_config = {
@@ -86,4 +92,4 @@ logging_config = {
 }
 logging.config.dictConfig(logging_config)
 logger = logging.getLogger("root")
-logger.handlers[0] = RichHandler(markup=True)
+# logger.handlers[0] = RichHandler(markup=True)

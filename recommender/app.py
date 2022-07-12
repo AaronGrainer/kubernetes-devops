@@ -3,11 +3,13 @@ from typing import List
 from fastapi import FastAPI
 from pydantic import BaseModel
 
+from recommender.db import get_latest_mlflow_run_id
 from recommender.prediction import RecommenderPredictor
 
 app = FastAPI()
 
-recommender = RecommenderPredictor()
+mlflow_run_id = get_latest_mlflow_run_id()
+recommender = RecommenderPredictor(mlflow_run_id)
 
 
 class RecommendItem(BaseModel):

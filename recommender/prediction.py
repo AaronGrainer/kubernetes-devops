@@ -9,13 +9,17 @@ from recommender.utils import map_column
 
 
 class RecommenderPredictor:
-    def __init__(self):
-        self.run_id = "c30e120a9d4947c5a641cbceaa989d8e"
+    def __init__(self, run_id):
+        self.run_id = run_id
 
         model, movie_to_idx, idx_to_movie = self.load()
         self.model = model
         self.movie_to_idx = movie_to_idx
         self.idx_to_movie = idx_to_movie
+
+        # Initialize MLflow
+        mlflow.set_tracking_uri(config.MLFLOW_TRACKING_URI)
+        mlflow.set_experiment("/recommender_bert4rec")
 
     def load(self):
         logger.info("Loading recommender predictor")

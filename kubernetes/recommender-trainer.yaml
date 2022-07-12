@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: recommender-trainer
+spec:
+  template:
+    spec:
+      containers:
+      - name: recommender-trainer
+        image: gcr.io/personal-351003/recommender-engine:latest
+        command: ["python", "-m", "recommender.trainer", "train"]
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "2000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+      restartPolicy: Never
+

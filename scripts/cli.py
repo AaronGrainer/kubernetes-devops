@@ -1,3 +1,5 @@
+import psycopg2
+import requests
 import typer
 
 from recommender import prediction, trainer
@@ -45,6 +47,44 @@ def predict():
     # ]
     # top_movie = prediction.predict(list_movies)
     # print('top_movie: ', top_movie)
+
+
+@app.command()
+def predict_request():
+    list_movies = [
+        "Harry Potter and the Sorcerer's Stone (a.k.a. Harry Potter and the Philosopher's Stone) (2001)",
+        "Harry Potter and the Chamber of Secrets (2002)",
+        "Harry Potter and the Prisoner of Azkaban (2004)",
+        "Harry Potter and the Goblet of Fire (2005)",
+    ]
+    data = {"user_movies": list_movies}
+    response = requests.post("http://localhost:3000/recommend", json=data)
+    print("response: ", response.status_code, response.json())
+
+
+@app.command()
+def db():
+    try:
+        connection = psycopg2.connect(
+            user="admin",
+            password="password",
+            host="127.0.0.1",
+            port="5432",
+            database="mlflow-tracking-server-db",
+        )
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM runs ORDER BY end_time desc")
+        record = cursor.fetchone()
+
+        mlflow_run_id = record[0]
+        return mlflow_run_id
+    except (Exception, psycopg2.Error) as error:
+        print("Error while connecting to PostgreSQL", error)
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
+            print("PostgreSQL connection is closed")
 
 
 if __name__ == "__main__":

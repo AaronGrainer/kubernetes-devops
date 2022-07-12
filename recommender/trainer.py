@@ -42,13 +42,13 @@ def train():
         default_root_dir=config.MODEL_DIR,
         max_epochs=config.NUM_EPOCHS,
         log_every_n_steps=10,
-        accelerator="gpu",
-        devices=1,
+        # accelerator="gpu",
+        # devices=1,
         logger=False,
     )
 
     # Initialize MLflow and auto log all MLflow entities
-    mlflow.set_tracking_uri("http://localhost:5000/")
+    mlflow.set_tracking_uri(config.MLFLOW_TRACKING_URI)
     mlflow.set_experiment("/recommender_bert4rec")
     mlflow.pytorch.autolog()
 
