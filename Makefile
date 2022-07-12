@@ -4,7 +4,7 @@ COMPONENT ?= frontend
 # frontend PORT=8501, backend PORT=8502
 PORT ?= 8501
 
-GCR_REPO ?= aarongrainer
+GCR_REPO ?= gcr.io/personal-351003
 MLFLOW_GS_ARTIFACT_PATH ?= gs://personal-mlflow-tracking/artifacts
 
 
@@ -117,6 +117,11 @@ skaffold-dev:
 	skaffold dev -m recommender-devops-$(COMPONENT) -p $(ENV) --tail --port-forward
 
 
+# Kubernetes GCR Authentication
+minikube-addons:
+	minikube addons enable gcp-auth
+
+
 # MLFlow Docker
 mlflow-postgres-docker-run:
 	docker run --name mlflow-database \
@@ -164,6 +169,12 @@ mlflow-postgres-install:
 mlflow-build:
 	docker build . -f mlflow/Dockerfile -t ${GCR_REPO}/mlflow:latest
 	docker push ${GCR_REPO}/mlflow:latest
+
+
+# Recommender
+recommender-build:
+	docker build . -f recommender/Dockerfile -t ${GCR_REPO}/recommender-engine:latest
+	docker push ${GCR_REPO}/recommender-engine:latest
 
 
 # Helm Prometheus
