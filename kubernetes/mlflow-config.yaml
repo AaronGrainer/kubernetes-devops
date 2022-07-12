@@ -4,7 +4,8 @@ metadata:
   name: mlflow-config
 data:
   DB_USERNAME: admin
-  DB_URL: mlflow-db-postgresql:5432
+  DB_HOST: mlflow-db-postgresql
+  DB_PORT: "5432"
   DB_NAME: mlflow-tracking-server-db
   GCP_PROJECT_ID: personal-351003
   ARTIFACT_URI: gs://personal-mlflow-tracking/artifacts

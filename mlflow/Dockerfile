@@ -25,8 +25,10 @@ EXPOSE 5000
 # Copy GCP service account credentials
 COPY secrets/gcloud-credentials.json /workdir/gcloud-credentials/gcloud-credentials.json
 
-ENTRYPOINT gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS && \
+ENTRYPOINT gcloud auth activate-service-account --key-file=/workdir/gcloud-credentials/gcloud-credentials.json && \
 	gcloud config set project $GCP_PROJECT_ID && \
 	mlflow server \
-	--default-artifact-root $ARTIFACT_URI \
-	--backend-store-uri postgresql://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$DB_NAME --host 0.0.0.0 --port 5000
+		--default-artifact-root $ARTIFACT_URI \
+		--backend-store-uri postgresql://$DB_USERNAME:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME \
+		--host 0.0.0.0 \
+		--port 5000
