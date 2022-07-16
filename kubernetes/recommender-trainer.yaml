@@ -11,10 +11,10 @@ spec:
         command: ["python", "-m", "recommender.trainer", "train"]
         resources:
           requests:
-            memory: "4Gi"
+            memory: "3Gi"
             cpu: "2000m"
           limits:
-            memory: "4Gi"
+            memory: "3Gi"
             cpu: "2000m"
       restartPolicy: Never
 

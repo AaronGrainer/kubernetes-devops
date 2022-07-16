@@ -13,7 +13,7 @@ def get_latest_mlflow_run_id():
             database=config.POSTGRESQL_MLFLOW_DB,
         )
         cursor = connection.cursor()
-        cursor.execute("SELECT * FROM runs ORDER BY end_time desc")
+        cursor.execute("SELECT * FROM runs WHERE status='FINISHED' ORDER BY end_time desc")
         record = cursor.fetchone()
 
         mlflow_run_id = record[0]
