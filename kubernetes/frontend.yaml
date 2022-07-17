@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recommender-frontend
+  labels:
+    app: recommender-frontend
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: recommender-frontend
+  template:
+    metadata:
+      labels:
+        app: recommender-frontend
+    spec:
+      containers:
+      - name: recommender-frontend
+        image: gcr.io/personal-351003/recommender-frontend:latest
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: "512MiB"
+            cpu: "250m"
+          limits:
+            memory: "512MiB"
+            cpu: "250m"
+        ports:
+        - name: http
+          containerPort: 3000
+          protocol: TCP
+        env:
+        - name: BACKEND_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: recommender-config
+              key: BACKEND_HOST
+        - name: BACKEND_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: recommender-config
+              key: BACKEND_PORT
+      volumes:
+      - name: recommender-config
+        configMap:
+          name: recommender-config
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: recommender-frontend
+spec:
+  selector:
+    app: recommender-frontend
+  ports:
+  - port: 3000
+    targetPort: 3000
+

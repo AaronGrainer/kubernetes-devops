@@ -14,4 +14,4 @@ COPY recommender recommender/
 COPY data/ml-20m/ratings.csv data/ml-20m/ratings.csv
 COPY data/ml-20m/movies.csv data/ml-20m/movies.csv
 
-ENTRYPOINT uvicorn recommender.app:app --port 3000
+ENTRYPOINT uvicorn recommender.app:app --port 4000

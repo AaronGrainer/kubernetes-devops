@@ -1,2 +1,2 @@
-DATABASE = "evelyn"
-LANDMARK = "landmark"
+DATABASE = "movie"
+RECOMMENDER = "recommender"

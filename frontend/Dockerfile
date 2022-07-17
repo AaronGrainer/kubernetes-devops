@@ -13,7 +13,7 @@ COPY frontend .
 # Install dependencies
 
 # Export ports
-EXPOSE 8501
+EXPOSE 3000
 
 # Start app
-ENTRYPOINT ["streamlit", "run", "app.py", "--server.port", "8501", "--theme.base", "light"]
+ENTRYPOINT ["streamlit", "run", "app.py", "--server.port", "3000", "--theme.base", "light"]

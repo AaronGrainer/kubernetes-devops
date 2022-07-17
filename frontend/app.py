@@ -19,8 +19,8 @@ def send_request(method: str, endpoint: str, payload: Dict = {}):
     url = f"{config.BACKEND_URL}/{endpoint}"
     logger.info(f"Sending {method} request to {url} with payload: {payload}")
     try:
-        if method == "GET":
-            response = requests.get(url, json=payload, headers={"x-token": "evelyn"})
+        if method == "POST":
+            response = requests.post(url, json=payload, headers={"x-token": "recommender"})
 
         if response.status_code < 200 or response.status_code >= 300:
             logger.error(

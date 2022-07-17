@@ -1,1 +1,1 @@
-from .landmark import Landmark  # NOQA: F401
+from .recommender import Recommender  # NOQA: F401

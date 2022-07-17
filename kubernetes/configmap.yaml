@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: recommender-config
+data:
+  POSTGRES_DB_USERNAME: admin
+  POSTGRES_DB_HOST: mlflow-db-postgresql
+  POSTGRES_DB_PORT: "5432"
+  POSTGRES_DB_NAME: mlflow-tracking-server-db
+  GCP_PROJECT_ID: personal-351003
+  ARTIFACT_URI: gs://personal-mlflow-tracking/artifacts
+  BACKEND_HOST: recommender-backend
+  BACKEND_POST: "3001"
+  MONGODB_ROOT_USERNAME: root
+  MONGODB_ROOT_HOST: recommender-mongodb

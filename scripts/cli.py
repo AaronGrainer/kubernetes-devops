@@ -58,7 +58,7 @@ def predict_request():
         "Harry Potter and the Goblet of Fire (2005)",
     ]
     data = {"user_movies": list_movies}
-    response = requests.post("http://localhost:3000/recommend", json=data)
+    response = requests.post("http://localhost:4000/recommend", json=data)
     print("response: ", response.status_code, response.json())
 
 

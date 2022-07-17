@@ -11,8 +11,7 @@ RUN pip install -r requirements.txt
 COPY backend .
 
 # Export ports
-EXPOSE 8502
+EXPOSE 3001
 
 # Start app
-# ENTRYPOINT ["gunicorn", "-w 1", "--bind=0.0.0.0:8502", "-k", "uvicorn.workers.UvicornWorker", "main:app"]
-ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8502"]
+ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "3001"]

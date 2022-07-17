@@ -34,8 +34,8 @@ spec:
         - name: DB_USERNAME
           valueFrom:
             configMapKeyRef:
-              name: mlflow-config
-              key: DB_USERNAME
+              name: recommender-config
+              key: POSTGRES_DB_USERNAME
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -44,32 +44,32 @@ spec:
         - name: DB_HOST
           valueFrom:
             configMapKeyRef:
-              name: mlflow-config
-              key: DB_HOST
+              name: recommender-config
+              key: POSTGRES_DB_HOST
         - name: DB_PORT
           valueFrom:
             configMapKeyRef:
-              name: mlflow-config
-              key: DB_PORT
+              name: recommender-config
+              key: POSTGRES_DB_PORT
         - name: DB_NAME
           valueFrom:
             configMapKeyRef:
-              name: mlflow-config
-              key: DB_NAME
+              name: recommender-config
+              key: POSTGRES_DB_NAME
         - name: GCP_PROJECT_ID
           valueFrom:
             configMapKeyRef:
-              name: mlflow-config
+              name: recommender-config
               key: GCP_PROJECT_ID
         - name: ARTIFACT_URI
           valueFrom:
             configMapKeyRef:
-              name: mlflow-config
+              name: recommender-config
               key: ARTIFACT_URI
       volumes:
-      - name: mlflow-config
+      - name: recommender-config
         configMap:
-          name: mlflow-config
+          name: recommender-config
       - name: mlflow-db-postgresql-secret
         secret:
           secretName: mlflow-db-postgresql

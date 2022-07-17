@@ -28,14 +28,14 @@ spec:
             cpu: "1000m"
         ports:
         - name: http
-          containerPort: 3000
+          containerPort: 4000
           protocol: TCP
         env:
         - name: POSTGRESQL_USERNAME
           valueFrom:
             configMapKeyRef:
-              name: mlflow-config
-              key: DB_USERNAME
+              name: recommender-config
+              key: POSTGRES_DB_USERNAME
         - name: POSTGRESQL_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -44,22 +44,22 @@ spec:
         - name: POSTGRESQL_HOST
           valueFrom:
             configMapKeyRef:
-              name: mlflow-config
-              key: DB_HOST
+              name: recommender-config
+              key: POSTGRES_DB_HOST
         - name: POSTGRESQL_PORT
           valueFrom:
             configMapKeyRef:
-              name: mlflow-config
-              key: DB_PORT
+              name: recommender-config
+              key: POSTGRES_DB_PORT
         - name: POSTGRESQL_MLFLOW_DB
           valueFrom:
             configMapKeyRef:
-              name: mlflow-config
-              key: DB_NAME
+              name: recommender-config
+              key: POSTGRES_DB_NAME
       volumes:
-      - name: mlflow-config
+      - name: recommender-config
         configMap:
-          name: mlflow-config
+          name: recommender-config
       - name: mlflow-db-postgresql-secrect
         secret:
           secretName: mlflow-db-postgresql
@@ -74,6 +74,6 @@ spec:
   selector:
     app: recommender-engine
   ports:
-  - port: 3000
-    targetPort: 3000
+  - port: 4000
+    targetPort: 4000
 

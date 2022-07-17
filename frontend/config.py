@@ -7,18 +7,10 @@ from pathlib import Path
 import pretty_errors  # NOQA: F401
 from rich.logging import RichHandler  # NOQA: F401
 
-# Settings
-TITLE = "Geo Analytics"
-DESCRIPTION = "Analytical app and data pipeline to understand Geolocation a little better."
-VERSION = "1.0"
-
+# Backend URL
 BACKEND_HOST = os.getenv("BACKEND_HOST")
 BACKEND_PORT = os.getenv("BACKEND_PORT")
 BACKEND_URL = f"http://{BACKEND_HOST}:{BACKEND_PORT}"
-
-SINGPORE_LONG_LAT = [1.35, 103.82]
-FOLIUM_ZOOM = 11
-FOLIUM_LANDMARK_COLOR = {"Place Of Interest": "blue", "Residence": "orange"}
 
 # Directories
 BASE_DIR = Path(__file__).parent.parent.absolute()

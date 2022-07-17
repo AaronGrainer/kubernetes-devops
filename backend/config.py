@@ -5,14 +5,11 @@ import sys
 from pathlib import Path
 
 import pretty_errors  # NOQA: F401
-from fluent import handler
 from rich.logging import RichHandler  # NOQA: F401
 
-import mlflow
-
 # Settings
-TITLE = "Geo Analytics"
-DESCRIPTION = "Analytical app and data pipeline to understand Geolocation a little better."
+TITLE = "Recommender"
+DESCRIPTION = "Recommender app."
 VERSION = "1.0"
 BACKEND_CORS_ORIGINS = []
 
@@ -21,22 +18,10 @@ BASE_DIR = Path(__file__).parent.parent.absolute()
 CONFIG_DIR = Path(BASE_DIR, "config")
 LOGS_DIR = Path(BASE_DIR, "logs")
 DATA_DIR = Path(BASE_DIR, "data")
-MODEL_DIR = Path(BASE_DIR, "model")
-STORES_DIR = Path(BASE_DIR, "stores")
-
-# Local stores
-BLOB_STORE = Path(STORES_DIR, "blob")
-FEATURE_STORE = Path(STORES_DIR, "feature")
-MODEL_REGISTRY = Path(STORES_DIR, "model")
 
 # Create dirs
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 DATA_DIR.mkdir(parents=True, exist_ok=True)
-MODEL_DIR.mkdir(parents=True, exist_ok=True)
-STORES_DIR.mkdir(parents=True, exist_ok=True)
-BLOB_STORE.mkdir(parents=True, exist_ok=True)
-FEATURE_STORE.mkdir(parents=True, exist_ok=True)
-MODEL_REGISTRY.mkdir(parents=True, exist_ok=True)
 
 # Database
 MONGODB_ROOT_USERNAME = os.getenv("MONGODB_ROOT_USERNAME")
@@ -45,14 +30,6 @@ MONGODB_ROOT_HOST = os.getenv("MONGODB_ROOT_HOST")
 MONGO_CLIENT = (
     f"mongodb://{MONGODB_ROOT_USERNAME}:{MONGODB_ROOT_PASSWORD}@{MONGODB_ROOT_HOST}:27017"
 )
-
-# Redis
-REDIS_HOST = os.getenv("REDIS_HOST")
-REDIS_PORT = os.getenv("REDIS_PORT")
-REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
-
-# MLFlow model registry
-mlflow.set_tracking_uri("http://mlflow-tracking-server")
 
 # Logger
 logging_config = {
@@ -99,14 +76,3 @@ logging_config = {
 logging.config.dictConfig(logging_config)
 logger = logging.getLogger("root")
 # logger.handlers[0] = RichHandler(markup=True)
-
-custom_format = {
-    "host": "%(hostname)s",
-    "where": "%(module)s.%(funcName)s",
-    "type": "%(levelname)s",
-    "stack_trace": "%(exc_text)s",
-}
-h = handler.FluentHandler("app.follow", host="evelyn-fluentd-aggregator", port=24224)
-formatter = handler.FluentRecordFormatter(custom_format)
-h.setFormatter(formatter)
-logger.addHandler(h)

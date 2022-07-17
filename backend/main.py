@@ -1,5 +1,5 @@
 import config
-from api import landmark
+from api import recommender
 from fastapi import Depends, FastAPI, Header, HTTPException
 from starlette.middleware.cors import CORSMiddleware
 
@@ -21,13 +21,15 @@ if config.BACKEND_CORS_ORIGINS:
 
 
 async def get_token_header(x_token: str = Header(...)):
-    if x_token != "evelyn":
+    if x_token != "recommender":
         raise HTTPException(status_code=400, detail="X-Token header invalid")
 
 
 @app.get("/")
 def root():
-    return {"data": "Geo Analytics"}
+    return {"data": "Recommender"}
 
 
-app.include_router(landmark.router, prefix="/landmarks", dependencies=[Depends(get_token_header)])
+app.include_router(
+    recommender.router, prefix="/recommenders", dependencies=[Depends(get_token_header)]
+)

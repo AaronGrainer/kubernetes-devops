@@ -151,7 +151,7 @@ mlflow-install:
 	make mlflow-object-credentials-add
 	make mlflow-postgres-install
 	make mlflow-build
-	kubectl apply -f kubernetes/mlflow-config.yaml
+	kubectl apply -f kubernetes/recommender-config.yaml
 	kubectl apply -f kubernetes/mlflow.yaml
 
 mlflow-object-credentials-add:
@@ -170,6 +170,12 @@ mlflow-postgres-install:
 mlflow-build:
 	docker build . -f mlflow/Dockerfile -t ${GCR_REPO}/mlflow:latest
 	docker push ${GCR_REPO}/mlflow:latest
+
+
+# MongoDB
+mongodb-install:
+	helm repo add bitnami https://charts.bitnami.com/bitnami
+	helm install recommender-mongodb bitnami/mongodb
 
 
 # Recommender
