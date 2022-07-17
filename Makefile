@@ -119,6 +119,7 @@ skaffold-dev:
 
 # Kubernetes GCR Authentication
 minikube-addons:
+	minikube addons disable gcp-auth
 	minikube addons enable gcp-auth
 
 

@@ -5,24 +5,20 @@ import torch
 import mlflow
 from common import config
 from common.config import logger
+from recommender.db import get_latest_mlflow_run_id
 from recommender.utils import map_column
 
 
 class RecommenderPredictor:
-    def __init__(self, run_id):
-        self.run_id = run_id
+    def __init__(self):
+        self.run_id = get_latest_mlflow_run_id()
 
-        model, movie_to_idx, idx_to_movie = self.load()
-        self.model = model
-        self.movie_to_idx = movie_to_idx
-        self.idx_to_movie = idx_to_movie
-
-        # Initialize MLflow
-        mlflow.set_tracking_uri(config.MLFLOW_TRACKING_URI)
-        mlflow.set_experiment("/recommender_bert4rec")
+        self.load()
 
     def load(self):
         logger.info("Loading recommender predictor")
+
+        logger.info("Loading the dataset")
         data = pd.read_csv(config.MOVIELENS_RATING_DATA_DIR)
         data = data.head(100000)
         movies = pd.read_csv(config.MOVIELENS_MOVIE_DATA_DIR)
@@ -30,17 +26,28 @@ class RecommenderPredictor:
         data.sort_values(by="timestamp", inplace=True)
         data, mapping, _ = map_column(data, col_name="movieId")
 
-        model = mlflow.pytorch.load_model(config.MODEL_URI.format(self.run_id))
-        model.eval()
+        logger.info(f"Loading the recommender model: {self.run_id}")
+        self.model = mlflow.pytorch.load_model(config.MODEL_URI.format(self.run_id))
+        self.model.eval()
 
-        movie_to_idx = {
+        self.movie_to_idx = {
             a: mapping[b]
             for a, b in zip(movies.title.tolist(), movies.movieId.tolist())
             if b in mapping
         }
-        idx_to_movie = {v: k for k, v in movie_to_idx.items()}
+        self.idx_to_movie = {v: k for k, v in self.movie_to_idx.items()}
 
-        return model, movie_to_idx, idx_to_movie
+    def hot_reload(self):
+        logger.info("Checking for new recommender model")
+        temp_run_id = get_latest_mlflow_run_id()
+
+        if temp_run_id != self.run_id:
+            self.run_id = temp_run_id
+            logger.info(f"Found a newer recommender model: {self.run_id}. Hot reloading now")
+
+            self.model = mlflow.pytorch.load_model(config.MODEL_URI.format(self.run_id))
+            self.model.eval()
+            logger.info("Successfully reloaded the new recommender model")
 
     def predict(self, user_movies):
         logger.info(f"Recommender predicting with User Movie: {user_movies}")

@@ -3,6 +3,7 @@ kind: Job
 metadata:
   name: recommender-trainer
 spec:
+  ttlSecondsAfterFinished: 60
   template:
     spec:
       containers:

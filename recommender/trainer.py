@@ -59,7 +59,7 @@ def train():
         mlflow.pytorch.log_model(model, "model")
 
     mlflow_run_id = run.info.run_id
-    print("mlflow_run_id: ", mlflow_run_id)
+    logger.info(f"Successfully trained a new recommender model with run_id: {mlflow_run_id}")
 
     # Cleanup
     logger.info("Cleaning up after training")
