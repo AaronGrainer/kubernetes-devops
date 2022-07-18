@@ -3,10 +3,11 @@ from datetime import datetime
 from http import HTTPStatus
 from typing import Dict, List
 
-import config
-from config import logger
 from pymongo import MongoClient
-from utils import constant
+
+from backend.utils import constant
+from common import config
+from common.config import logger
 
 MCLIENT = MongoClient(config.MONGO_CLIENT)
 
@@ -41,18 +42,23 @@ def db_get_recommenders(search: str = None) -> List:
     return recommenders
 
 
-# def db_insert_landmarks(details: Dict):
-#     """Insert a new landmark.
+def db_insert_documents(document_name: str, documents: List[Dict]):
+    """Insert documents.
 
-#     Args:
-#         details (Dict): Landmark details
-#     """
-#     try:
-#         dt = datetime.utcnow()
-#         details.update({"created_at": dt, "created_at": dt})
-#         collection = get_mongo_collection(constant.LANDMARK)
-#         collection.insert_one(details)
-#         return HTTPStatus.OK
-#     except Exception as e:
-#         logger.error(f"DB Error inserting landmark: {details}. {e}")
-#         return HTTPStatus.INTERNAL_SERVER_ERROR
+    Args:
+        document_name (str): Document name
+        documents (Dict): Document details
+    """
+    try:
+        dt = datetime.utcnow()
+
+        for document in documents:
+            document.update({"created_at": dt, "updated_at": dt})
+
+        collection = get_mongo_collection(document_name)
+        collection.insert_many(documents)
+
+        return HTTPStatus.OK
+    except Exception as e:
+        logger.error(f"DB Error inserting document. Error: {e}")
+        return HTTPStatus.INTERNAL_SERVER_ERROR

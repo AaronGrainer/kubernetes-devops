@@ -184,6 +184,19 @@ recommender-build:
 	docker push ${GCR_REPO}/recommender-engine:latest
 
 
+# Script
+kubernetes-script-run:
+	docker build . -f scripts/Dockerfile -t ${GCR_REPO}/recommender-script:latest
+	docker push ${GCR_REPO}/recommender-script:latest
+
+	- kubectl delete -f kubernetes/script.yaml
+	kubectl apply -f kubernetes/script.yaml
+
+	timeout 5
+
+	kubectl logs job/script -f
+
+
 # Helm Prometheus
 helm-prometheus-repo-add:
 	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts

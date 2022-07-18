@@ -8,10 +8,11 @@ COPY backend/requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
 # Copy
-COPY backend .
+COPY common common/
+COPY backend backend/
 
 # Export ports
 EXPOSE 3001
 
 # Start app
-ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "3001"]
+ENTRYPOINT uvicorn backend.main:app --host 0.0.0.0 --port 3001

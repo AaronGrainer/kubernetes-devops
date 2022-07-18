@@ -1,7 +1,8 @@
-import config
-from api import recommender
 from fastapi import Depends, FastAPI, Header, HTTPException
 from starlette.middleware.cors import CORSMiddleware
+
+from backend.api import recommender
+from common import config
 
 app = FastAPI(
     title=config.TITLE,
@@ -21,13 +22,13 @@ if config.BACKEND_CORS_ORIGINS:
 
 
 async def get_token_header(x_token: str = Header(...)):
-    if x_token != "recommender":
+    if x_token != "super-secret":
         raise HTTPException(status_code=400, detail="X-Token header invalid")
 
 
 @app.get("/")
 def root():
-    return {"data": "Recommender"}
+    return {"data": "Backend"}
 
 
 app.include_router(

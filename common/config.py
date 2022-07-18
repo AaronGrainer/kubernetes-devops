@@ -7,6 +7,12 @@ from pathlib import Path
 # import pretty_errors  # NOQA: F401
 # from rich.logging import RichHandler
 
+# Settings
+TITLE = "Recommender"
+DESCRIPTION = "Recommender app."
+VERSION = "1.0"
+BACKEND_CORS_ORIGINS = []
+
 # Directories
 BASE_DIR = Path(__file__).parent.parent.absolute()
 LOGS_DIR = Path(BASE_DIR, "logs")
@@ -40,11 +46,20 @@ LEARNING_RATE = 1e-4
 NUM_EPOCHS = 1
 MODEL_URI = "gs://personal-mlflow-tracking/artifacts/1/{}/artifacts/model/"
 
+# Postgresql Database
 POSTGRESQL_USERNAME = os.getenv("POSTGRESQL_USERNAME")
 POSTGRESQL_PASSWORD = os.getenv("POSTGRESQL_PASSWORD")
 POSTGRESQL_HOST = os.getenv("POSTGRESQL_HOST")
 POSTGRESQL_PORT = os.getenv("POSTGRESQL_PORT")
 POSTGRESQL_MLFLOW_DB = os.getenv("POSTGRESQL_MLFLOW_DB")
+
+# MongoDB Database
+MONGODB_ROOT_USERNAME = os.getenv("MONGODB_ROOT_USERNAME")
+MONGODB_ROOT_PASSWORD = os.getenv("MONGODB_ROOT_PASSWORD")
+MONGODB_ROOT_HOST = os.getenv("MONGODB_ROOT_HOST")
+MONGO_CLIENT = (
+    f"mongodb://{MONGODB_ROOT_USERNAME}:{MONGODB_ROOT_PASSWORD}@{MONGODB_ROOT_HOST}:27017"
+)
 
 MLFLOW_TRACKING_URI = "http://mlflow:5000/"
 

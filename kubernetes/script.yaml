@@ -1,35 +1,15 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
-  name: backend
-  labels:
-    app: backend
+  name: script
 spec:
-  replicas: 1
-  revisionHistoryLimit: 0
-  selector:
-    matchLabels:
-      app: backend
+  ttlSecondsAfterFinished: 60
   template:
-    metadata:
-      labels:
-        app: backend
     spec:
       containers:
-      - name: backend
-        image: gcr.io/personal-351003/recommender-backend:latest
-        imagePullPolicy: IfNotPresent
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "250m"
-        ports:
-        - name: http
-          containerPort: 3001
-          protocol: TCP
+      - name: script
+        image: gcr.io/personal-351003/recommender-script:latest
+        command: ["python", "-m", "scripts.cli", "upload-new-movie-list"]
         env:
         - name: MONGODB_ROOT_USERNAME
           valueFrom:
@@ -46,6 +26,7 @@ spec:
             configMapKeyRef:
               name: recommender-config
               key: MONGODB_ROOT_HOST
+      restartPolicy: Never
       volumes:
       - name: recommender-config
         configMap:
@@ -53,17 +34,4 @@ spec:
       - name: recommender-mongodb-secret
         secret:
           secretName: recommender-mongodb
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: backend
-spec:
-  selector:
-    app: backend
-  ports:
-  - port: 3001
-    targetPort: 3001
 

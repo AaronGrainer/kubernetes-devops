@@ -1,12 +1,12 @@
-import json
 from http import HTTPStatus
 from typing import Any
 
-import schemas
 from fastapi import APIRouter, Request
 from fastapi.encoders import jsonable_encoder
-from utils import database
-from utils.helper import construct_response, filter_document
+
+from backend import schemas
+from backend.utils import database
+from backend.utils.helper import construct_response, filter_document
 
 router = APIRouter()
 

@@ -5,7 +5,7 @@ RUN apt-get update && \
     apt-get install -y libpq-dev gcc
 
 # Install dependencies
-COPY recommender/requirements.txt requirements.txt
+COPY scripts/requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
 # Copy
@@ -13,6 +13,6 @@ COPY data/ml-20m/ratings.csv data/ml-20m/ratings.csv
 COPY data/ml-20m/movies.csv data/ml-20m/movies.csv
 
 COPY common common/
-COPY recommender recommender/
+COPY backend backend/
+COPY scripts scripts/
 
-ENTRYPOINT uvicorn recommender.app:app --port 4000
