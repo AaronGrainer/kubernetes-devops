@@ -14,5 +14,6 @@ COPY data/ml-20m/movies.csv data/ml-20m/movies.csv
 
 COPY common common/
 COPY backend backend/
+COPY recommender recommender/
 COPY scripts scripts/
 

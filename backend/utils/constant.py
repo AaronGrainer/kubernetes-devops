@@ -1,2 +1,0 @@
-DATABASE = "movie"
-RECOMMENDER = "recommender"

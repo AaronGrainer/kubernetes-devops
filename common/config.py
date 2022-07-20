@@ -61,7 +61,8 @@ MONGO_CLIENT = (
     f"mongodb://{MONGODB_ROOT_USERNAME}:{MONGODB_ROOT_PASSWORD}@{MONGODB_ROOT_HOST}:27017"
 )
 
-MLFLOW_TRACKING_URI = "http://mlflow:5000/"
+MLFLOW_HOST = os.getenv("MLFLOW_HOST")
+MLFLOW_TRACKING_URI = f"http://{MLFLOW_HOST}:5000/"
 
 # Logger
 logging_config = {

@@ -4,7 +4,7 @@ import typer
 from torch.utils.data import DataLoader
 
 import mlflow
-from common import config
+from common import config, constant, database
 from common.config import logger
 from recommender.data import Dataset
 from recommender.models import Recommender
@@ -18,7 +18,9 @@ def train():
     logger.info("Starting Recommender Trainer")
 
     logger.info("Loading Dataset")
-    data = pd.read_csv(config.MOVIELENS_RATING_DATA_DIR)
+    data = database.db_get_documents(constant.RATING, {})
+    data = pd.DataFrame(data)
+
     data = data.head(100000)
     data.sort_values(by="timestamp", inplace=True)
 

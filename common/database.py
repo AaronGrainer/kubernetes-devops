@@ -1,12 +1,10 @@
-import re
 from datetime import datetime
 from http import HTTPStatus
 from typing import Dict, List
 
 from pymongo import MongoClient
 
-from backend.utils import constant
-from common import config
+from common import config, constant
 from common.config import logger
 
 MCLIENT = MongoClient(config.MONGO_CLIENT)
@@ -21,25 +19,24 @@ def get_mongo_collection(collection_name: str):
     return MCLIENT[constant.DATABASE][collection_name]
 
 
-def db_get_recommenders(search: str = None) -> List:
-    """Retrieve the full list of recommender details.
+def db_get_documents(document_name: str, search_dict: Dict = None) -> List:
+    """Retrieve the documents.
 
     Args:
-        search (str): Recommender search
+        document_name (str): Document name
+        search_dict (Dict): Query dictionary
 
     Returns:
-        List: List of recommenders
+        List: List of documents
     """
     try:
-        collection = get_mongo_collection(constant.RECOMMENDER)
-
-        search_regex = re.compile(search, re.IGNORECASE)
-        recommenders = list(collection.find({"name": search_regex}))
+        collection = get_mongo_collection(document_name)
+        documents = list(collection.find(search_dict))
     except Exception as e:
-        recommenders = []
-        logger.error(f"DB Error retrieving recommender. {e}")
+        documents = []
+        logger.error(f"DB Error retrieving documents. {e}")
 
-    return recommenders
+    return documents
 
 
 def db_insert_documents(document_name: str, documents: List[Dict]):

@@ -2,11 +2,9 @@ import pandas as pd
 import requests
 import typer
 
-from backend.utils import constant
-
-# from recommender import prediction, trainer
-from backend.utils.database import db_insert_documents
-from common import config
+# from recommender import prediction
+from common import config, constant, database
+from common.config import logger
 
 app = typer.Typer()
 
@@ -62,18 +60,48 @@ def predict_request():
 
 
 @app.command()
-def upload_new_movie_list():
+def upload_recommender_dataset():
+    logger.info("Inserting MovieLens dataset into Dataset")
 
-    data = pd.read_csv(config.MOVIELENS_RATING_DATA_DIR)
-    data = data.head(100000)
-    data.sort_values(by="timestamp", inplace=True)
-    print("data: ", data)
+    ratings = pd.read_csv(config.MOVIELENS_RATING_DATA_DIR)
+    movies = pd.read_csv(config.MOVIELENS_MOVIE_DATA_DIR)
 
-    import time
+    ratings = ratings.head(100000)
+    ratings.sort_values(by="timestamp", inplace=True)
 
-    time.sleep(10)
+    ratings, mapping, _ = map_column(ratings, col_name="movieId")
+    ratings["timestamp"] = pd.to_datetime(ratings["timestamp"])
 
-    # db_insert_documents(constant.recommender, documents)
+    ratings_dict = ratings.to_dict("records")
+    logger.info(f"Inserting {len(ratings_dict)} rating documents")
+    database.db_insert_documents(constant.RATING, ratings_dict)
+
+    movies_dict = movies.to_dict("records")
+    logger.info(f"Inserting {len(movies_dict)} movies documents")
+    database.db_insert_documents(constant.MOVIE, movies_dict)
+
+    logger.info("Successfully inserted the MovieLens dataset")
+
+
+####################
+# Utility Functions
+####################
+
+
+def map_column(df: pd.DataFrame, col_name: str):
+    """Maps column values to integers
+
+    Args:
+        df (pd.DataFrame): _description_
+        col_name (str): _description_
+    """
+    values = sorted(list(df[col_name].unique()))
+    mapping = {k: i + 2 for i, k in enumerate(values)}
+    inverse_mapping = {v: k for k, v in mapping.items()}
+
+    df[col_name + "_mapped"] = df[col_name].map(mapping)
+
+    return df, mapping, inverse_mapping
 
 
 if __name__ == "__main__":

@@ -86,13 +86,12 @@ docker-build-push-pipeline:
 
 # Kubernetes
 minikube-start:
-	minikube start
+	minikube start --memory 4000 --cpus 4
+	minikube addons enable gcp-auth
 	minikube dashboard
 
 create-namespaces:
-	kubectl create namespace recommender-devops-dev
-	kubectl create namespace recommender-devops-staging
-	kubectl create namespace recommender-devops-prod
+	kubectl apply -f kubernetes/namespace.yaml
 
 
 # Helm
@@ -151,7 +150,7 @@ mlflow-install:
 	make mlflow-object-credentials-add
 	make mlflow-postgres-install
 	make mlflow-build
-	kubectl apply -f kubernetes/recommender-config.yaml
+	kubectl apply -f kubernetes/configmap.yaml
 	kubectl apply -f kubernetes/mlflow.yaml
 
 mlflow-object-credentials-add:

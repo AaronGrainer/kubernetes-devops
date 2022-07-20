@@ -56,6 +56,21 @@ spec:
             configMapKeyRef:
               name: recommender-config
               key: POSTGRES_DB_NAME
+        - name: MONGODB_ROOT_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: recommender-config
+              key: MONGODB_ROOT_USERNAME
+        - name: MONGODB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: recommender-mongodb
+              key: mongodb-root-password
+        - name: MONGODB_ROOT_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: recommender-config
+              key: MONGODB_ROOT_HOST
       volumes:
       - name: recommender-config
         configMap:
@@ -63,6 +78,9 @@ spec:
       - name: mlflow-db-postgresql-secrect
         secret:
           secretName: mlflow-db-postgresql
+      - name: recommender-mongodb-secret
+        secret:
+          secretName: recommender-mongodb
 
 ---
 

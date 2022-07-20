@@ -17,5 +17,9 @@ spec:
           limits:
             memory: "3Gi"
             cpu: "2000m"
+        env:
+        - name: MLFLOW_HOST
+          value: mlflow
       restartPolicy: Never
+
 
