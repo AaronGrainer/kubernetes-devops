@@ -1,11 +1,12 @@
 from typing import Dict
 
-import config
 import folium
 import requests
 import streamlit as st
-from config import logger
 from streamlit_folium import folium_static
+
+from common import config
+from common.config import logger
 
 
 def send_request(method: str, endpoint: str, payload: Dict = {}):
@@ -20,7 +21,7 @@ def send_request(method: str, endpoint: str, payload: Dict = {}):
     logger.info(f"Sending {method} request to {url} with payload: {payload}")
     try:
         if method == "POST":
-            response = requests.post(url, json=payload, headers={"x-token": "recommender"})
+            response = requests.post(url, json=payload, headers={"x-token": "super-secret"})
 
         if response.status_code < 200 or response.status_code >= 300:
             logger.error(

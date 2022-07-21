@@ -11,5 +11,7 @@ data:
   ARTIFACT_URI: gs://personal-mlflow-tracking/artifacts
   BACKEND_HOST: recommender-backend
   BACKEND_POST: "3001"
+  RECOMMENDER_ENGINE_HOST: recommender-engine
+  RECOMMENDER_ENGINE_PORT: "4000"
   MONGODB_ROOT_USERNAME: root
   MONGODB_ROOT_HOST: recommender-mongodb

@@ -31,6 +31,16 @@ spec:
           containerPort: 3001
           protocol: TCP
         env:
+        - name: RECOMMENDER_ENGINE_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: recommender-config
+              key: RECOMMENDER_ENGINE_HOST
+        - name: RECOMMENDER_ENGINE_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: recommender-config
+              key: RECOMMENDER_ENGINE_PORT
         - name: MONGODB_ROOT_USERNAME
           valueFrom:
             configMapKeyRef:

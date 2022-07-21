@@ -19,7 +19,7 @@ def get_mongo_collection(collection_name: str):
     return MCLIENT[constant.DATABASE][collection_name]
 
 
-def db_get_documents(document_name: str, search_dict: Dict = None) -> List:
+def db_get_documents(document_name: str, search_dict: Dict, limit: int = None) -> List:
     """Retrieve the documents.
 
     Args:
@@ -31,7 +31,10 @@ def db_get_documents(document_name: str, search_dict: Dict = None) -> List:
     """
     try:
         collection = get_mongo_collection(document_name)
-        documents = list(collection.find(search_dict))
+        if limit:
+            documents = list(collection.find(search_dict).limit(limit))
+        else:
+            documents = list(collection.find(search_dict))
     except Exception as e:
         documents = []
         logger.error(f"DB Error retrieving documents. {e}")

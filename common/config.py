@@ -29,6 +29,16 @@ LOGS_DIR.mkdir(parents=True, exist_ok=True)
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
+# Backend URL
+BACKEND_HOST = os.getenv("BACKEND_HOST")
+BACKEND_PORT = os.getenv("BACKEND_PORT")
+BACKEND_URL = f"http://{BACKEND_HOST}:{BACKEND_PORT}"
+
+# Recommender URL
+RECOMMENDER_ENGINE_HOST = os.getenv("RECOMMENDER_ENGINE_HOST")
+RECOMMENDER_ENGINE_PORT = os.getenv("RECOMMENDER_ENGINE_PORT")
+RECOMMENDER_ENGINE_URL = f"http://{RECOMMENDER_ENGINE_HOST}:{RECOMMENDER_ENGINE_PORT}"
+
 # Recommender
 TRAIN_BATCH_SIZE = 64
 VAL_BATCH_SIZE = 64

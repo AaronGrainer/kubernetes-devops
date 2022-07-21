@@ -15,4 +15,4 @@ COPY data/ml-20m/movies.csv data/ml-20m/movies.csv
 COPY common common/
 COPY recommender recommender/
 
-ENTRYPOINT uvicorn recommender.app:app --port 4000
+ENTRYPOINT uvicorn recommender.app:app --host 0.0.0.0 --port 4000
