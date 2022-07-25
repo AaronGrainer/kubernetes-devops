@@ -8,7 +8,8 @@ COPY frontend/requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
 # Copy
-COPY frontend .
+COPY common common
+COPY frontend frontend
 
 # Install dependencies
 
@@ -16,4 +17,6 @@ COPY frontend .
 EXPOSE 3000
 
 # Start app
-ENTRYPOINT ["streamlit", "run", "app.py", "--server.port", "3000", "--theme.base", "light"]
+ENTRYPOINT python -m streamlit run frontend/app.py \
+    --server.port 8501 \
+    --theme.base light

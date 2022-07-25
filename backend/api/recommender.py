@@ -6,12 +6,9 @@ from fastapi import APIRouter, Request
 from fastapi.encoders import jsonable_encoder
 
 from backend import schemas
-from backend.utils.helper import (
-    construct_response,
-    filter_document,
-    send_request,
-)
+from backend.utils.helper import construct_response, filter_document
 from common import config, constant, database
+from common.utils import send_request
 
 router = APIRouter()
 

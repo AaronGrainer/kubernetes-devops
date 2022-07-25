@@ -41,6 +41,21 @@ spec:
             configMapKeyRef:
               name: recommender-config
               key: RECOMMENDER_ENGINE_PORT
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: recommender-secret
+              key: SECRET_KEY
+        - name: ALGORITHM
+          valueFrom:
+            configMapKeyRef:
+              name: recommender-config
+              key: ALGORITHM
+        - name: ACCESS_TOKEN_EXPIRE_MINUTES
+          valueFrom:
+            configMapKeyRef:
+              name: recommender-config
+              key: ACCESS_TOKEN_EXPIRE_MINUTES
         - name: MONGODB_ROOT_USERNAME
           valueFrom:
             configMapKeyRef:
@@ -60,6 +75,9 @@ spec:
       - name: recommender-config
         configMap:
           name: recommender-config
+      - name: recommender-secret
+        secret:
+          secretName: recommender-secret
       - name: recommender-mongodb-secret
         secret:
           secretName: recommender-mongodb
