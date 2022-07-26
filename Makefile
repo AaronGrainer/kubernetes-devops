@@ -174,7 +174,7 @@ mlflow-build:
 # MongoDB
 mongodb-install:
 	helm repo add bitnami https://charts.bitnami.com/bitnami
-	helm install recommender-mongodb bitnami/mongodb
+	helm install mongodb bitnami/mongodb
 
 
 # Recommender

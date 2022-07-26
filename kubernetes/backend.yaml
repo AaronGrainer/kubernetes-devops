@@ -28,7 +28,7 @@ spec:
             cpu: "250m"
         ports:
         - name: http
-          containerPort: 3001
+          containerPort: 3000
           protocol: TCP
         env:
         - name: RECOMMENDER_ENGINE_HOST
@@ -64,7 +64,7 @@ spec:
         - name: MONGODB_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: recommender-mongodb
+              name: mongodb
               key: mongodb-root-password
         - name: MONGODB_ROOT_HOST
           valueFrom:
@@ -78,9 +78,9 @@ spec:
       - name: recommender-secret
         secret:
           secretName: recommender-secret
-      - name: recommender-mongodb-secret
+      - name: mongodb-secret
         secret:
-          secretName: recommender-mongodb
+          secretName: mongodb
 
 ---
 
@@ -92,6 +92,6 @@ spec:
   selector:
     app: backend
   ports:
-  - port: 3001
-    targetPort: 3001
+  - port: 3000
+    targetPort: 3000
 

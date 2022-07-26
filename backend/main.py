@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Union
 
-from fastapi import Depends, FastAPI, Header, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -32,12 +32,12 @@ if config.BACKEND_CORS_ORIGINS:
 
 
 fake_users_db = {
-    "johndoe": {
-        "username": "johndoe",
-        "full_name": "John Doe",
-        "email": "johndoe@example.com",
-        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
-        "disabled": False,
+    "aarongrainer": {
+        "username": "aarongrainer",
+        "full_name": "Aaron Grainer",
+        "email": "aaronlimfz@gmail.com",
+        "hashed_password": "$2b$12$mV.gK3tBbsdchgcIIw9A3ObHptOHRLjEptdAI2QP4I4P7m8J07tWa",
+        "active": True,
     }
 }
 
@@ -97,7 +97,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
 
 async def get_current_active_user(current_user: User = Depends(get_current_user)):
-    if current_user.disabled:
+    if not current_user.active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 

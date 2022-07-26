@@ -12,7 +12,7 @@ COPY common common/
 COPY backend backend/
 
 # Export ports
-EXPOSE 3001
+EXPOSE 3000
 
 # Start app
-ENTRYPOINT uvicorn backend.main:app --host 0.0.0.0 --port 3001
+ENTRYPOINT uvicorn backend.main:app --host 0.0.0.0 --port 3000

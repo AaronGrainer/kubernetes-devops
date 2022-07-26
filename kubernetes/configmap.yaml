@@ -9,11 +9,12 @@ data:
   POSTGRES_DB_NAME: mlflow-tracking-server-db
   GCP_PROJECT_ID: personal-351003
   ARTIFACT_URI: gs://personal-mlflow-tracking/artifacts
-  BACKEND_HOST: recommender-backend
-  BACKEND_PORT: "3001"
+  BACKEND_HOST: backend
+  BACKEND_PORT: "3000"
+  BACKEND_USERNAME: aarongrainer
   ALGORITHM: "HS256"
   ACCESS_TOKEN_EXPIRE_MINUTES: "30"
   RECOMMENDER_ENGINE_HOST: recommender-engine
   RECOMMENDER_ENGINE_PORT: "4000"
   MONGODB_ROOT_USERNAME: root
-  MONGODB_ROOT_HOST: recommender-mongodb
+  MONGODB_ROOT_HOST: mongodb

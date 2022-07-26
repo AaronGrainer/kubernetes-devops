@@ -19,7 +19,7 @@ spec:
         - name: MONGODB_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: recommender-mongodb
+              name: mongodb
               key: mongodb-root-password
         - name: MONGODB_ROOT_HOST
           valueFrom:
@@ -31,7 +31,7 @@ spec:
       - name: recommender-config
         configMap:
           name: recommender-config
-      - name: recommender-mongodb-secret
+      - name: mongodb-secret
         secret:
-          secretName: recommender-mongodb
+          secretName: mongodb
 

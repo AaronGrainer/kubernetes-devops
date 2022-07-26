@@ -14,7 +14,7 @@ COPY frontend frontend
 # Install dependencies
 
 # Export ports
-EXPOSE 3000
+EXPOSE 8501
 
 # Start app
 ENTRYPOINT python -m streamlit run frontend/app.py \

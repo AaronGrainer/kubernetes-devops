@@ -64,7 +64,7 @@ spec:
         - name: MONGODB_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: recommender-mongodb
+              name: mongodb
               key: mongodb-root-password
         - name: MONGODB_ROOT_HOST
           valueFrom:
@@ -78,9 +78,9 @@ spec:
       - name: mlflow-db-postgresql-secrect
         secret:
           secretName: mlflow-db-postgresql
-      - name: recommender-mongodb-secret
+      - name: mongodb-secret
         secret:
-          secretName: recommender-mongodb
+          secretName: mongodb
 
 ---
 

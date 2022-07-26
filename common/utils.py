@@ -5,8 +5,10 @@ import requests
 from common.config import logger
 
 
-def send_request(base_url: str, endpoint: str, method: str, payload: Dict = {}):
-    """Send request to backend.
+def send_request(
+    base_url: str, endpoint: str, method: str, headers: Dict = None, payload: Dict = {}
+):
+    """Send REST API request.
 
     Args:
         base_url (str): Base URL
@@ -18,9 +20,9 @@ def send_request(base_url: str, endpoint: str, method: str, payload: Dict = {}):
     logger.info(f"Sending {method} request to {url} with payload: {payload}")
     try:
         if method == "GET":
-            response = requests.get(url, json=payload, headers={"x-token": "super-secret"})
+            response = requests.get(url, data=payload, headers=headers)
         elif method == "POST":
-            response = requests.post(url, json=payload, headers={"x-token": "super-secret"})
+            response = requests.post(url, data=payload, headers=headers)
 
         if response.status_code < 200 or response.status_code >= 300:
             logger.error(
@@ -28,11 +30,11 @@ def send_request(base_url: str, endpoint: str, method: str, payload: Dict = {}):
                 f"Comment status_code: {response.status_code}, "
                 f"response text: {response.text}"
             )
-            return {}
+            return response.status_code, {}
 
         response_json = response.json()
         logger.info(f"Received response: {response_json}")
-        return response_json
+        return response.status_code, response_json
     except Exception as e:
         logger.error(f"Error sending request to {url}. {e}")
-        return {}
+        return response.status_code, {}
