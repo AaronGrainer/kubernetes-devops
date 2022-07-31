@@ -1,2 +1,2 @@
-# recommender-devops
-Recommendation engine and pipeline in Kubernetes with Devops principles and implementation
+# kubernetes-devops
+An end-to-end microservice kubernetes deployment pipeline with devops principles and implementation
