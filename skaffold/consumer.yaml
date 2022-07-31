@@ -1,0 +1,13 @@
+apiVersion: skaffold/v2beta29
+kind: Config
+metadata:
+  name: kubernetes-devops-consumer
+build:
+  artifacts:
+  - image: gcr.io/personal-351003/kubernetes-devops-consumer
+    docker:
+      dockerfile: consumer/Dockerfile
+deploy:
+  kubectl:
+    manifests:
+      - kubernetes/consumer.yaml

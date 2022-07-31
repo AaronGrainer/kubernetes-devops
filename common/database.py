@@ -62,3 +62,25 @@ def db_insert_documents(document_name: str, documents: List[Dict]):
     except Exception as e:
         logger.error(f"DB Error inserting document. Error: {e}")
         return HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def db_append_document(document_name: str, field: str, value: str):
+    """Append to existing document field.
+
+    Args:
+        document_name (str): Document name
+        documents (Dict): Document details
+    """
+    try:
+        dt = datetime.utcnow()
+
+        for document in documents:
+            document.update({"created_at": dt, "updated_at": dt})
+
+        collection = get_mongo_collection(document_name)
+        collection.insert_many(documents)
+
+        return HTTPStatus.OK
+    except Exception as e:
+        logger.error(f"DB Error inserting document. Error: {e}")
+        return HTTPStatus.INTERNAL_SERVER_ERROR

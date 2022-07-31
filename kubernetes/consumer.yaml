@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumer
+  labels:
+    app: consumer
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: consumer
+  template:
+    metadata:
+      labels:
+        app: consumer
+    spec:
+      containers:
+      - name: consumer
+        image: gcr.io/personal-351003/kubernetes-devops-consumer:latest
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+        ports:
+        - name: http
+          containerPort: 3000
+          protocol: TCP
+        env:
+        - name: MONGODB_ROOT_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: recommender-config
+              key: MONGODB_ROOT_USERNAME
+        - name: MONGODB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb
+              key: mongodb-root-password
+        - name: MONGODB_ROOT_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: recommender-config
+              key: MONGODB_ROOT_HOST
+        - name: KAFKA_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: recommender-config
+              key: KAFKA_HOST
+        - name: KAFKA_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: recommender-config
+              key: KAFKA_PORT
+      volumes:
+      - name: recommender-config
+        configMap:
+          name: recommender-config
+      - name: recommender-secret
+        secret:
+          secretName: recommender-secret
+      - name: mongodb-secret
+        secret:
+          secretName: mongodb
+

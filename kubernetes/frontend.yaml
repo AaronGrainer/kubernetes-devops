@@ -66,6 +66,16 @@ spec:
             configMapKeyRef:
               name: recommender-config
               key: ACCESS_TOKEN_EXPIRE_MINUTES
+        - name: KAFKA_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: recommender-config
+              key: KAFKA_HOST
+        - name: KAFKA_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: recommender-config
+              key: KAFKA_PORT
       volumes:
       - name: recommender-config
         configMap:

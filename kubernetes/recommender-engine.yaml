@@ -71,6 +71,11 @@ spec:
             configMapKeyRef:
               name: recommender-config
               key: MONGODB_ROOT_HOST
+        - name: ACCESS_TOKEN_EXPIRE_MINUTES
+          valueFrom:
+            configMapKeyRef:
+              name: recommender-config
+              key: ACCESS_TOKEN_EXPIRE_MINUTES
       volumes:
       - name: recommender-config
         configMap:
