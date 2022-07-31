@@ -86,7 +86,7 @@ docker-build-push-pipeline:
 
 # Kubernetes
 minikube-start:
-	minikube start --memory 4000 --cpus 4
+	minikube start --memory 8192 --cpus 4
 	minikube addons enable gcp-auth
 	minikube dashboard
 
@@ -194,6 +194,12 @@ kubernetes-script-run:
 	timeout 5
 
 	kubectl logs job/script -f
+
+
+# Fluentd
+fluentd-build:
+	docker build . -f fluentd/Dockerfile -t ${GCR_REPO}/fluentd:latest
+	docker push ${GCR_REPO}/fluentd:latest
 
 
 # Helm Prometheus

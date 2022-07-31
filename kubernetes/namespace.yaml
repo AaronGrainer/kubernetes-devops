@@ -22,3 +22,21 @@ metadata:
   name: recommender-devops-prod
   labels:
     name: recommender-devops-prod
+
+---
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fluentd
+  labels:
+    name: fluentd
+
+---
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: elastic-kibana
+  labels:
+    name: elastic-kibana
