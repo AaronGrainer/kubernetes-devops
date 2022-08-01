@@ -177,6 +177,12 @@ mongodb-install:
 	helm install mongodb bitnami/mongodb
 
 
+# Kafka
+kafka-install:
+	helm repo add bitnami https://charts.bitnami.com/bitnami
+	helm install kafka bitnami/kafka
+
+
 # Recommender
 recommender-build:
 	docker build . -f recommender/Dockerfile -t ${GCR_REPO}/recommender-engine:latest

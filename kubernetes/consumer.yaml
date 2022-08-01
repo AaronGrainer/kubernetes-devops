@@ -46,11 +46,11 @@ spec:
             configMapKeyRef:
               name: recommender-config
               key: MONGODB_ROOT_HOST
-        - name: KAFKA_HOST
+        - name: KAFKA_CONSUMER_HOST
           valueFrom:
             configMapKeyRef:
               name: recommender-config
-              key: KAFKA_HOST
+              key: KAFKA_CONSUMER_HOST
         - name: KAFKA_PORT
           valueFrom:
             configMapKeyRef:
