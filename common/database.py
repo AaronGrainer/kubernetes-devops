@@ -64,7 +64,7 @@ def db_insert_documents(document_name: str, documents: List[Dict]):
         return HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def db_append_document(document_name: str, field: str, value: str):
+def db_append_unique_document(document_name: str, key_dict: Dict, field: str, value: str):
     """Append to existing document field.
 
     Args:
@@ -74,11 +74,24 @@ def db_append_document(document_name: str, field: str, value: str):
     try:
         dt = datetime.utcnow()
 
-        for document in documents:
-            document.update({"created_at": dt, "updated_at": dt})
-
         collection = get_mongo_collection(document_name)
-        collection.insert_many(documents)
+        document = collection.find_one(key_dict)
+        if not document:
+            # Add new entry in DB
+            document = {**key_dict, field: [value], "created_at": dt, "updated_at": dt}
+            collection.insert_one(document)
+        else:
+            # Remove value from document if already exists
+            if value in document[field]:
+                document[field].remove(value)
+
+            # Append value to end of list
+            document[field].append(value)
+
+            document["updated_at"] = dt
+
+            # Update entry in DB
+            collection.update_one(key_dict, {"$set": document})
 
         return HTTPStatus.OK
     except Exception as e:

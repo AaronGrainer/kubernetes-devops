@@ -4,3 +4,4 @@ pandas==1.4.1
 rich==12.4.4
 pretty-errors==1.2.25
 kafka-python==2.0.2
+bson==0.5.10
