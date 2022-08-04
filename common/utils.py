@@ -20,7 +20,7 @@ def send_request(
     logger.info(f"Sending {method} request to {url} with payload: {payload}")
     try:
         if method == "GET":
-            response = requests.get(url, data=payload, headers=headers)
+            response = requests.get(url, params=payload, headers=headers)
         elif method == "POST":
             response = requests.post(url, data=payload, headers=headers)
 

@@ -104,5 +104,12 @@ def map_column(df: pd.DataFrame, col_name: str):
     return df, mapping, inverse_mapping
 
 
+@app.command()
+def create_mongo_field_index():
+    """Create field index in mongo collection"""
+    collection = database.get_mongo_collection("movie")
+    collection.create_index([("title", "text")])
+
+
 if __name__ == "__main__":
     app()

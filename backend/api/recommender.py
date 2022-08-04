@@ -13,23 +13,6 @@ from common.utils import send_request
 router = APIRouter()
 
 
-@router.get("/")
-@construct_response
-def get_recommenders(request: Request, payload: schemas.Recommender) -> Any:
-    payload = jsonable_encoder(payload)
-
-    search_regex = re.compile(payload["search"], re.IGNORECASE)
-    search_dict = {"title": search_regex}
-    limit = payload["limit"]
-
-    recommenders = database.db_get_documents(constant.MOVIE, search_dict, limit)
-
-    recommenders = [filter_document(recommender) for recommender in recommenders]
-    response = {"data": recommenders, "status_code": HTTPStatus.OK}
-
-    return response
-
-
 @router.get("/prediction")
 @construct_response
 def get_prediction_recommenders(request: Request) -> Any:

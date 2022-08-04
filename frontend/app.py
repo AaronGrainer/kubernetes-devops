@@ -1,4 +1,5 @@
 import json
+import re
 
 import streamlit as st
 from bson.objectid import ObjectId
@@ -15,10 +16,20 @@ producer = KafkaProducer(
 )
 
 
+def search(search_text):
+    if search_text:
+        payload = {"text": search_text, "limit": 10}
+        response = send_request("search", "GET", payload)
+
+        movies = [movie["title"] for movie in response.get("data", [])]
+        return movies
+
+
 def send_broker_message(movie):
-    logger.info(f"Sending message to broker: {movie}")
-    uid = st.session_state["uid"]
-    producer.send("user_selection", {"uid": str(uid), "movie": movie})
+    if movie:
+        logger.info(f"Sending message to broker: {movie}")
+        uid = st.session_state["uid"]
+        producer.send("user_selection", {"uid": str(uid), "movie": movie})
 
 
 def main():
@@ -28,14 +39,20 @@ def main():
     st.title(config.TITLE)
     st.write(config.DESCRIPTION)
 
-    movie = "Harry Potter and the Deathly Hallows: Part 2 (2011)"
-    st.button("Harry Potter", on_click=send_broker_message, args=[movie])
+    search_text = st.text_input("Movie Search")
+    movies = search(search_text)
 
-    movie = "Apollo 13 (1995)"
-    st.button("Apollo 13", on_click=send_broker_message, args=[movie])
+    # If searching, display the movie search results
+    if movies and isinstance(movies, list):
+        for movie in movies:
+            year_bracket_regex = r"\(.*\)$"
+            title = re.sub(year_bracket_regex, "", movie)
+            title = title.strip()
 
-    movie = "Batman Begins (2005)"
-    st.button("Batman Begins", on_click=send_broker_message, args=[movie])
+            st.button(title, on_click=send_broker_message, args=[movie])
+    else:
+        # If not searching, recommend some movies
+        pass
 
 
 if __name__ == "__main__":

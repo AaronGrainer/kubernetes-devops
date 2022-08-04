@@ -7,7 +7,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from starlette.middleware.cors import CORSMiddleware
 
-from backend.api import recommender
+from backend.api import general, recommender
 from backend.schemas.user import Token, TokenData, User, UserInDB
 from common import config
 
@@ -131,6 +131,11 @@ async def read_own_items(current_user: User = Depends(get_current_active_user)):
 @app.get("/")
 def root():
     return {"data": "Backend"}
+
+
+app.include_router(
+    general.router,
+)
 
 
 app.include_router(
