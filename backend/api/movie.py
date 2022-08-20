@@ -1,6 +1,7 @@
 from http import HTTPStatus
 from typing import Dict
 
+import wikipedia
 from bson import ObjectId
 from fastapi import APIRouter, Request
 
@@ -12,9 +13,9 @@ from common.utils import send_request
 router = APIRouter()
 
 
-@router.get("/predict")
+@router.get("/recommend")
 @construct_response
-def predict(request: Request, uid: str, limit: int) -> Dict:
+def recommend(request: Request, uid: str, limit: int) -> Dict:
     """Call the Recommender Engine to get user movie recommendations
 
     Args:
@@ -49,5 +50,30 @@ def predict(request: Request, uid: str, limit: int) -> Dict:
     else:
         logger.warning(f"Received status: {status_code} from Recommender Engine")
         response = {"data": [], "status_code": HTTPStatus.OK}
+
+    return response
+
+
+@router.get("/summary")
+@construct_response
+def summary(request: Request, movie_title: str) -> Dict:
+    """Search for movie summary on wikipedia
+
+    Args:
+        request (Request): Fastapi Request
+        movie_title (str): Movie title to search
+
+    Returns:
+        Dict: Response
+    """
+    search_titles = wikipedia.search(movie_title, results=1)
+    search_title = search_titles[0]
+    try:
+        movie_summary = wikipedia.summary(search_title)
+    except Exception as e:
+        logger.warning(f"Unable to get movie summary. Error: {e}")
+        movie_summary = "This is a movie"
+
+    response = {"data": {"movie_summary": movie_summary}, "status_code": HTTPStatus.OK}
 
     return response

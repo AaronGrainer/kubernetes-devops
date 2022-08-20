@@ -170,10 +170,22 @@ kafka-install:
 	helm install kafka bitnami/kafka
 
 
-# Recommender
-recommender-build:
+# Recommender Engine
+recommender-engine-build:
 	docker build . -f recommender/Dockerfile -t ${GCR_REPO}/recommender-engine:latest
 	docker push ${GCR_REPO}/recommender-engine:latest
+
+
+# Recommender Trainer
+recommender-train:
+	make recommender-engine-build
+
+	- kubectl delete -f kubernetes/recommender-trainer.yaml
+	kubectl apply -f kubernetes/recommender-trainer.yaml
+
+	timeout 5
+
+	kubectl logs job/recommender-trainer -f
 
 
 # Script

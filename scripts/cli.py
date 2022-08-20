@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 import typer
+import wikipedia
 
 # from recommender import prediction
 from common import config, constant, database
@@ -109,6 +110,17 @@ def create_mongo_field_index():
     """Create field index in mongo collection"""
     collection = database.get_mongo_collection("movie")
     collection.create_index([("title", "text")])
+
+
+@app.command()
+def call_wikipedia():
+    """Call wikipedia to retrieve search summary"""
+    movie_title = "Harry Potter and the Sorcerer's Stone"
+    search_titles = wikipedia.search(movie_title, results=1)
+    search_title = search_titles[0]
+    print("search_title: ", search_title)
+    result = wikipedia.summary(search_title)
+    print("result: ", result)
 
 
 if __name__ == "__main__":

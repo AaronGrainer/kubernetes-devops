@@ -6,6 +6,7 @@ spec:
   ttlSecondsAfterFinished: 60
   template:
     spec:
+      restartPolicy: Never
       containers:
       - name: recommender-trainer
         image: gcr.io/personal-351003/recommender-engine:latest
@@ -20,6 +21,60 @@ spec:
         env:
         - name: MLFLOW_HOST
           value: mlflow
-      restartPolicy: Never
+        - name: POSTGRESQL_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: recommender-config
+              key: POSTGRES_DB_USERNAME
+        - name: POSTGRESQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mlflow-db-postgresql
+              key: postgres-password
+        - name: POSTGRESQL_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: recommender-config
+              key: POSTGRES_DB_HOST
+        - name: POSTGRESQL_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: recommender-config
+              key: POSTGRES_DB_PORT
+        - name: POSTGRESQL_MLFLOW_DB
+          valueFrom:
+            configMapKeyRef:
+              name: recommender-config
+              key: POSTGRES_DB_NAME
+        - name: MONGODB_ROOT_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: recommender-config
+              key: MONGODB_ROOT_USERNAME
+        - name: MONGODB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb
+              key: mongodb-root-password
+        - name: MONGODB_ROOT_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: recommender-config
+              key: MONGODB_ROOT_HOST
+        - name: ACCESS_TOKEN_EXPIRE_MINUTES
+          valueFrom:
+            configMapKeyRef:
+              name: recommender-config
+              key: ACCESS_TOKEN_EXPIRE_MINUTES
+      volumes:
+      - name: recommender-config
+        configMap:
+          name: recommender-config
+      - name: mlflow-db-postgresql-secrect
+        secret:
+          secretName: mlflow-db-postgresql
+      - name: mongodb-secret
+        secret:
+          secretName: mongodb
 
 

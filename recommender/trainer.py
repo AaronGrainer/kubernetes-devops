@@ -1,5 +1,6 @@
 import pandas as pd
 import pytorch_lightning as pl
+import torch
 import typer
 from torch.utils.data import DataLoader
 
@@ -21,7 +22,6 @@ def train():
     data = database.db_get_documents(constant.RATING, {})
     data = pd.DataFrame(data)
 
-    data = data.head(100000)
     data.sort_values(by="timestamp", inplace=True)
 
     data, mapping, _ = map_column(data, col_name="movieId")
@@ -40,14 +40,22 @@ def train():
     logger.info("Initializing trainer")
     model = Recommender(vocab_size=len(mapping) + 2)
 
-    trainer = pl.Trainer(
-        default_root_dir=config.MODEL_DIR,
-        max_epochs=config.NUM_EPOCHS,
-        log_every_n_steps=10,
-        # accelerator="gpu",
-        # devices=1,
-        logger=False,
-    )
+    if torch.cuda.is_available():
+        trainer = pl.Trainer(
+            default_root_dir=config.MODEL_DIR,
+            max_epochs=config.NUM_EPOCHS,
+            log_every_n_steps=10,
+            accelerator="gpu",
+            devices=1,
+            logger=False,
+        )
+    else:
+        trainer = pl.Trainer(
+            default_root_dir=config.MODEL_DIR,
+            max_epochs=config.NUM_EPOCHS,
+            log_every_n_steps=10,
+            logger=False,
+        )
 
     # Initialize MLflow and auto log all MLflow entities
     mlflow.set_tracking_uri(config.MLFLOW_TRACKING_URI)

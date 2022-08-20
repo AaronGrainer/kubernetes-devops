@@ -24,7 +24,6 @@ class RecommenderPredictor:
         movies = database.db_get_documents(constant.MOVIE, {})
         movies = pd.DataFrame(movies)
 
-        data = data.head(100000)
         data.sort_values(by="timestamp", inplace=True)
         data, mapping, _ = map_column(data, col_name="movieId")
 

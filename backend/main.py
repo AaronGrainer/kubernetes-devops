@@ -7,7 +7,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from starlette.middleware.cors import CORSMiddleware
 
-from backend.api import general, recommender
+from backend.api import general, movie
 from backend.schemas.user import Token, TokenData, User, UserInDB
 from common import config
 
@@ -139,6 +139,6 @@ app.include_router(
 
 
 app.include_router(
-    recommender.router,
-    prefix="/recommender",
+    movie.router,
+    prefix="/movie",
 )
