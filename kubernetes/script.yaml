@@ -8,7 +8,7 @@ spec:
     spec:
       containers:
       - name: script
-        image: gcr.io/personal-351003/recommender-script:latest
+        image: gcr.io/personal-351003/kubernetes-devops-script:latest
         command: ["python", "-m", "scripts.cli", "upload-recommender-dataset"]
         env:
         - name: MONGODB_ROOT_USERNAME

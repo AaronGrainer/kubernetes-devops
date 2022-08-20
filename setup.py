@@ -36,7 +36,7 @@ setup(
     description="Recommendation engine and pipeline in Kubernetes with Devops principles and implementation",
     author="Aaron Grainer",
     author_email="aaronlimfz@gmail.com",
-    url="https://github.com/AaronGrainer/recommender-devops",
+    url="https://github.com/AaronGrainer/kubernetes-devops",
     keywords=["recommender", "data analytics", "kubernetes"],
     classifiers=["Topic :: Recommender", "Topic :: Data Analytics", "Topic :: Kubernetes"],
     # python_requires="==3.8.12",

@@ -18,6 +18,6 @@ data:
   RECOMMENDER_ENGINE_PORT: "4000"
   MONGODB_ROOT_USERNAME: root
   MONGODB_ROOT_HOST: mongodb
-  KAFKA_PRODUCER_HOST: kafka-0.kafka-headless.recommender-devops-dev.svc.cluster.local
-  KAFKA_CONSUMER_HOST: kafka.recommender-devops-dev.svc.cluster.local
+  KAFKA_PRODUCER_HOST: kafka-0.kafka-headless.kubernetes-devops-dev.svc.cluster.local
+  KAFKA_CONSUMER_HOST: kafka.kubernetes-devops-dev.svc.cluster.local
   KAFKA_PORT: "9092"
