@@ -140,5 +140,5 @@ app.include_router(
 
 app.include_router(
     recommender.router,
-    prefix="/recommenders",
+    prefix="/recommender",
 )

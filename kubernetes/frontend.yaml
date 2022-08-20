@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: recommender-frontend
+  name: frontend
   labels:
-    app: recommender-frontend
+    app: frontend
 spec:
   replicas: 1
   revisionHistoryLimit: 0
   selector:
     matchLabels:
-      app: recommender-frontend
+      app: frontend
   template:
     metadata:
       labels:
-        app: recommender-frontend
+        app: frontend
     spec:
       containers:
-      - name: recommender-frontend
-        image: gcr.io/personal-351003/recommender-frontend:latest
+      - name: frontend
+        image: gcr.io/personal-351003/kubernetes-devops-frontend:latest
         imagePullPolicy: IfNotPresent
         resources:
           requests:
@@ -89,10 +89,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: recommender-frontend
+  name: frontend
 spec:
   selector:
-    app: recommender-frontend
+    app: frontend
   ports:
   - port: 8501
     targetPort: 8501

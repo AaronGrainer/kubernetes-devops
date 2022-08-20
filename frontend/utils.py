@@ -8,7 +8,7 @@ from common.utils import send_request as send_req
 
 def send_auth_request(payload: Dict = {}):
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
-    _, response = send_req(config.BACKEND_URL, "token", "POST", headers, payload)
+    _, response = send_req(config.BACKEND_URL, "token", "POST DATA", headers, payload)
     return response
 
 

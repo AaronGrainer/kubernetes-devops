@@ -1,3 +1,4 @@
+from http import HTTPStatus
 from typing import List
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -32,9 +33,11 @@ async def startup_event():
 async def recommend(recommender_item: RecommendItem):
     if recommender:
         predicted_movies = recommender.predict(recommender_item.user_movies)
-        return predicted_movies
+        response = {"predicted_movies": predicted_movies, "status_code": HTTPStatus.OK}
     else:
-        return []
+        response = {"predicted_movies": [], "status_code": HTTPStatus.OK}
+
+    return response
 
 
 @app.get("/")

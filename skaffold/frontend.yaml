@@ -1,10 +1,10 @@
 apiVersion: skaffold/v2beta29
 kind: Config
 metadata:
-  name: recommender-frontend
+  name: frontend
 build:
   artifacts:
-  - image: gcr.io/personal-351003/recommender-frontend
+  - image: gcr.io/personal-351003/kubernetes-devops-frontend
     docker:
       dockerfile: frontend/Dockerfile
 deploy:

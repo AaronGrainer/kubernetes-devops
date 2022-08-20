@@ -1,10 +1,10 @@
 apiVersion: skaffold/v2beta29
 kind: Config
 metadata:
-  name: recommender-backend
+  name: backend
 build:
   artifacts:
-  - image: gcr.io/personal-351003/recommender-backend
+  - image: gcr.io/personal-351003/kubernetes-devops-backend
     docker:
       dockerfile: backend/Dockerfile
 deploy:

@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: gcr.io/personal-351003/recommender-backend:latest
+        image: gcr.io/personal-351003/kubernetes-devops-backend:latest
         imagePullPolicy: IfNotPresent
         resources:
           requests:

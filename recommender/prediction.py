@@ -69,6 +69,6 @@ class RecommenderPredictor:
         predicted_movies = [
             self.idx_to_movie[a] for a in sorted_predicted_ids[:30] if a in self.idx_to_movie
         ]
-        logger.info(f"Predicted movides: {predicted_movies}")
+        logger.info(f"Predicted movies: {predicted_movies}")
 
         return predicted_movies

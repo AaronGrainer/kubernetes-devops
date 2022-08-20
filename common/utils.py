@@ -22,6 +22,8 @@ def send_request(
         if method == "GET":
             response = requests.get(url, params=payload, headers=headers)
         elif method == "POST":
+            response = requests.post(url, json=payload, headers=headers)
+        elif method == "POST DATA":
             response = requests.post(url, data=payload, headers=headers)
 
         if response.status_code < 200 or response.status_code >= 300:
