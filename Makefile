@@ -164,6 +164,12 @@ mongodb-install:
 	helm install mongodb bitnami/mongodb
 
 
+# Redis
+helm-install-redis:
+	helm repo add bitnami https://charts.bitnami.com/bitnami
+	helm install kubernetes-devops-redis bitnami/redis
+
+
 # Kafka
 kafka-install:
 	helm repo add bitnami https://charts.bitnami.com/bitnami
@@ -175,8 +181,8 @@ kubernetes-script-run:
 	docker build . -f scripts/Dockerfile -t ${GCR_REPO}/kubernetes-devops-script:1.0
 	docker push ${GCR_REPO}/kubernetes-devops-script:1.0
 
-	- kubectl delete -f kubernetes/script.yaml
-	kubectl apply -f kubernetes/script.yaml
+	- kubectl delete -f kubernetes/job/script.yaml
+	kubectl apply -f kubernetes/job/script.yaml
 
 	timeout 5
 
@@ -187,8 +193,8 @@ kubernetes-script-run:
 recommender-train:
 	make recommender-engine-build
 
-	- kubectl delete -f kubernetes/recommender-trainer.yaml
-	kubectl apply -f kubernetes/recommender-trainer.yaml
+	- kubectl delete -f kubernetes/job/recommender-trainer.yaml
+	kubectl apply -f kubernetes/job/recommender-trainer.yaml
 
 	timeout 5
 
@@ -292,24 +298,6 @@ argo-events-port-forward:
 
 curl-argo-events:
 	curl -d '{"message":"Hello there"}' -H "Content-Type: application/json" -X POST http://localhost:12000/deploy
-
-
-# MongoDB
-helm-install-mongodb:
-	helm repo add bitnami https://charts.bitnami.com/bitnami
-	helm install kubernetes-devops-mongo bitnami/mongodb
-
-mongodb-password:
-	kubectl get secret --namespace kubernetes-devops-$(ENV) kubernetes-devops-mongo-mongodb -o jsonpath="{.data.mongodb-root-password}" | base64 --decode
-
-mongodb-port-forward:
-	kubectl port-forward --namespace kubernetes-devops-$(ENV) svc/kubernetes-devops-mongo-mongodb 27011:27017
-
-
-# Redis
-helm-install-redis:
-	helm repo add bitnami https://charts.bitnami.com/bitnami
-	helm install kubernetes-devops-redis bitnami/redis
 
 
 # ElasticSearch
