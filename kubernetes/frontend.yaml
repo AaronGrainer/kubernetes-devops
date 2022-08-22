@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: gcr.io/personal-351003/kubernetes-devops-frontend:latest
+        image: gcr.io/personal-351003/kubernetes-devops-frontend:1.0
         imagePullPolicy: IfNotPresent
         resources:
           requests:

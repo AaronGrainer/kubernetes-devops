@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: gcr.io/personal-351003/kubernetes-devops-backend:latest
+        image: gcr.io/personal-351003/kubernetes-devops-backend:1.0
         imagePullPolicy: IfNotPresent
         resources:
           requests:

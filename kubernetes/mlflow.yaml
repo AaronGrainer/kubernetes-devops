@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: mlflow
-        image: gcr.io/personal-351003/mlflow:latest
+        image: gcr.io/personal-351003/mlflow:1.0
         imagePullPolicy: Always
         resources:
           requests:

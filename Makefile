@@ -120,7 +120,7 @@ mlflow-postgres-docker-run:
 		bitnami/postgresql
 
 mlflow-docker-build:
-	docker build . -f mlflow/Dockerfile -t mlflow:latest
+	docker build . -f mlflow/Dockerfile -t mlflow:1.0
 
 mlflow-docker-run:
 	- docker stop mlflow & docker rm mlflow
@@ -129,7 +129,7 @@ mlflow-docker-run:
 	-e ARTIFACT_STORE=gs://personal-mlflow-tracking/artifacts \
 	-p 5000:5000 \
 	--link mlflow-database \
-	mlflow:latest
+	mlflow:1.0
 
 
 # MLFlow Kubernetes
@@ -154,8 +154,8 @@ mlflow-postgres-install:
 		-f mlflow/postgresql-values.yaml
 
 mlflow-build:
-	docker build . -f mlflow/Dockerfile -t ${GCR_REPO}/mlflow:latest
-	docker push ${GCR_REPO}/mlflow:latest
+	docker build . -f mlflow/Dockerfile -t ${GCR_REPO}/mlflow:1.0
+	docker push ${GCR_REPO}/mlflow:1.0
 
 
 # MongoDB
@@ -170,10 +170,17 @@ kafka-install:
 	helm install kafka bitnami/kafka
 
 
-# Recommender Engine
-recommender-engine-build:
-	docker build . -f recommender/Dockerfile -t ${GCR_REPO}/recommender-engine:latest
-	docker push ${GCR_REPO}/recommender-engine:latest
+# Script
+kubernetes-script-run:
+	docker build . -f scripts/Dockerfile -t ${GCR_REPO}/kubernetes-devops-script:1.0
+	docker push ${GCR_REPO}/kubernetes-devops-script:1.0
+
+	- kubectl delete -f kubernetes/script.yaml
+	kubectl apply -f kubernetes/script.yaml
+
+	timeout 5
+
+	kubectl logs job/script -f
 
 
 # Recommender Trainer
@@ -188,23 +195,34 @@ recommender-train:
 	kubectl logs job/recommender-trainer -f
 
 
-# Script
-kubernetes-script-run:
-	docker build . -f scripts/Dockerfile -t ${GCR_REPO}/kubernetes-devops-script:latest
-	docker push ${GCR_REPO}/kubernetes-devops-script:latest
+# Recommender Engine
+recommender-engine-build:
+	docker build . -f recommender/Dockerfile -t ${GCR_REPO}/recommender-engine:1.0
+	docker push ${GCR_REPO}/recommender-engine:1.0
 
-	- kubectl delete -f kubernetes/script.yaml
-	kubectl apply -f kubernetes/script.yaml
 
-	timeout 5
+# Consumer
+consumer-build:
+	docker build . -f recommender/Dockerfile -t ${GCR_REPO}/kubernetes-devops-consumer:1.0
+	docker push ${GCR_REPO}/kubernetes-devops-consumer:1.0
 
-	kubectl logs job/script -f
+
+# Backend
+backend-build:
+	docker build . -f recommender/Dockerfile -t ${GCR_REPO}/kubernetes-devops-backend:1.0
+	docker push ${GCR_REPO}/kubernetes-devops-backend:1.0
+
+
+# Frontend
+frontend-build:
+	docker build . -f recommender/Dockerfile -t ${GCR_REPO}/kubernetes-devops-frontend:1.0
+	docker push ${GCR_REPO}/kubernetes-devops-frontend:1.0
 
 
 # Fluentd
 fluentd-build:
-	docker build . -f fluentd/Dockerfile -t ${GCR_REPO}/fluentd:latest
-	docker push ${GCR_REPO}/fluentd:latest
+	docker build . -f fluentd/Dockerfile -t ${GCR_REPO}/fluentd:1.0
+	docker push ${GCR_REPO}/fluentd:1.0
 
 
 # Helm Prometheus
@@ -220,6 +238,19 @@ grafana-port-forward:
 
 prometheus-port-forward:
 	kubectl port-forward prometheus-prometheus-kube-prometheus-prometheus-0 9090
+
+
+# Argo CD
+argo-cd:
+	kubectl create namespace argocd
+	kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+argo-cd-port-forward:
+	kubectl port-forward svc/argocd-server -n argocd 8080:443
+
+argo-cd-cli-setup:
+	argocd login 127.0.01:8080
+	argocd cluster add minikube
 
 
 # Argo
